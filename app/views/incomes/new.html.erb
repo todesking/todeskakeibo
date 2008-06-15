@@ -1,0 +1,27 @@
+<h1>New income</h1>
+
+<% form_for(@income) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :money %><br />
+    <%= f.text_field :money %>
+  </p>
+  <p>
+    <%= f.label :category %><br />
+    <%= f.text_field :category %>
+  </p>
+  <p>
+    <%= f.label :description %><br />
+    <%= f.text_field :description %>
+  </p>
+  <p>
+    <%= f.label :date %><br />
+    <%= f.date_select :date %>
+  </p>
+  <p>
+    <%= f.submit "Create" %>
+  </p>
+<% end %>
+
+<%= link_to 'Back', incomes_path %>
