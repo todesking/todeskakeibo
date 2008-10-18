@@ -1,13 +1,8 @@
-require 'src/model/account_history.rb'
-require 'src/model/helper.rb'
+require 'spec/model_spec_helper.rb'
 
 describe AccountHistory,'with empty' do
   before(:all) do
-    ActiveRecord::Base.establish_connection(
-      :adapter => 'sqlite3',
-      :dbfile => ':memory:'
-    )
-    ModelHelper.create_tables
+    ModelSpecHelper.setup_database
   end
   before(:each) do
     AccountHistory.delete_all
@@ -17,4 +12,8 @@ describe AccountHistory,'with empty' do
     AccountHistory.current_amount(:bank).should be(0)
     AccountHistory.current_amount(:wallet).should be(0)
   end
+end
+
+describe AccountHistory,'with some histories' do
+
 end

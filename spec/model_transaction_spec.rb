@@ -1,12 +1,8 @@
-require 'src/model/transaction.rb'
-require 'src/model/helper.rb'
+require 'spec/model_spec_helper.rb'
+
 describe Transaction do
   before(:all) do
-    ActiveRecord::Base.establish_connection(
-      :adapter => 'sqlite3',
-      :dbfile => ':memory:'
-    )
-    ModelHelper.create_tables
+    ModelSpecHelper.setup_database
   end
   before(:each) do
     Transaction.delete_all
