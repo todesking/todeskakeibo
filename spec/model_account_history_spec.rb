@@ -32,23 +32,25 @@ describe AccountHistory,'with some histories, and no transactions' do
     }
   end
   it 'should 0 yen in bank before history begins' do
-    AccountHistory.amount_at(:bank,'2008-09-30').should be(0)
-    AccountHistory.amount_at(:bank,'2007-10-03').should be(0)
+    AccountHistory.amount_at('bank','2008-09-30').should be==0
+    AccountHistory.amount_at('bank','2007-10-03').should be==0
   end
   it 'should exists the history at 2008-10-02' do
     AccountHistory.find_by_date('2008-10-02').should_not be_nil
   end
   it 'should no histories before 2008-10-01' do
-    AccountHistory.newest_history(Date.new(2008,10,1)).should be_nil
+    AccountHistory.newest_history('bank',Date.new(2008,9,30)).should be_nil
   end
-  it 'should exists the history before 2008-10-03 and its date is 2008-10-02' do
-    Date.new(2008,10,2).should be(Date.new(2008,10,2))
-    AccountHistory.newest_history(Date.new(2008,10,3)).should_not be_nil
-    AccountHistory.newest_history(Date.new(2008,10,3)).date.should be(Date.new(2008,10,2))
+  it 'should exists the newest history upto 2008-10-03 and its date is 2008-10-03' do
+    AccountHistory.newest_history('bank',Date.new(2008,10,3)).should_not be_nil
+    AccountHistory.newest_history('bank',Date.new(2008,10,3)).date.should be == Date.new(2008,10,3)
+  end
+  it 'should exists the newest history upto 2008-10-31 and its date is 2008-10-04' do
+    AccountHistory.newest_history('bank',Date.new(2008,10,31)).should_not be_nil
+    AccountHistory.newest_history('bank',Date.new(2008,10,31)).date.should be == Date.new(2008,10,4)
   end
   it 'should 1000 yen in bank at 2008-10-01' do
-    pending 'write AccountHistory.find_by_date spec first!'
-    AccountHistory.amount_at(:bank,'2008-10-01').should be(1000)
+    AccountHistory.amount_at('bank','2008-10-01').should be == 1000
   end
 end
 
