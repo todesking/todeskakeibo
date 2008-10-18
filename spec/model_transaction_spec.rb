@@ -1,20 +1,12 @@
 require 'src/model/transaction.rb'
+require 'src/model/helper.rb'
 describe Transaction do
   before(:all) do
     ActiveRecord::Base.establish_connection(
       :adapter => 'sqlite3',
       :dbfile => ':memory:'
     )
-    con=ActiveRecord::Base.connection
-    con.execute <<-'EOS'
-    create table transactions (
-      id integer not null primary key,
-      date datetime not null,
-      src string not null,
-      dest string not null,
-      amount integer not null
-    )
-    EOS
+    ModelHelper.create_tables
   end
   before(:each) do
     Transaction.delete_all
