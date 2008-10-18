@@ -6,6 +6,8 @@ class AccountHistory < ActiveRecord::Base
     amount_at(stash_name,Date.new)
   end
   def self.amount_at(stash_name,date)
-    0
+    most_recent_history=AccountHistory.find(:first,:conditions=>['date < ?',date])
+    return 0 if most_recent_history.nil?
+    return most_recent_history.amount
   end
 end
