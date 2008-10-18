@@ -10,4 +10,7 @@ class AccountHistory < ActiveRecord::Base
     return 0 if most_recent_history.nil?
     return most_recent_history.amount
   end
+  def self.newest_history(date_before)
+    return find(:first,:conditions=>['date < ?',date_before],:order=>'date desc')
+  end
 end
