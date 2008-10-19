@@ -30,7 +30,7 @@ describe Transaction,'in common' do
   it 'should error when balance_between called with to < from date' do
     lambda {Transaction.balance_between('bank',Date.new(2008,9,30),Date.new(2008,8,10))}.should raise_error(ArgumentError)
     lambda {Transaction.balance_between('bank',Date.new(2008,9,30),Date.new(2008,9,29))}.should raise_error(ArgumentError)
-    lambda {Transaction.balance_between('bank',Date.new(2008,9,30),Date.new(2008,9,30))}.should_not raise_error(ArgumentError)
+    lambda {Transaction.balance_between('bank',Date.new(2008,9,30),Date.new(2008,9,30))}.should_not raise_error
   end
 end
 
