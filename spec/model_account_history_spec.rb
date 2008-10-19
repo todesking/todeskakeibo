@@ -6,12 +6,10 @@ describe AccountHistory,'with no history' do
   end
   before(:each) do
     AccountHistory.delete_all
-    Transaction.delete_all
   end
   it 'should no amount in any account and any time' do
-    AccountHistory.current_amount(:bank).should be(0)
-    AccountHistory.current_amount(:wallet).should be(0)
-    AccountHistory.amount_at(:wallet,'2001-01-01').should be(0)
+    AccountHistory.newest_history('wallet',Date.new(2007,1,1)).should be_nil
+    AccountHistory.newest_history('bank',Date.new(2008,12,1)).should be_nil
   end
 end
 
@@ -21,7 +19,6 @@ describe AccountHistory,'with some histories' do
   end
   before(:each) do
     AccountHistory.delete_all
-    Transaction.delete_all
     [
       { :date => '2008-10-01', :name => 'bank', :amount => 1000},
       { :date => '2008-10-02', :name => 'bank', :amount => 2000},
@@ -44,8 +41,5 @@ describe AccountHistory,'with some histories' do
   it 'should exists the newest history upto 2008-10-31 and its date is 2008-10-04' do
     AccountHistory.newest_history('bank',Date.new(2008,10,31)).should_not be_nil
     AccountHistory.newest_history('bank',Date.new(2008,10,31)).date.should be == Date.new(2008,10,4)
-  end
-  it 'should 1000 yen in bank at 2008-10-01' do
-    AccountHistory.amount_at('bank','2008-10-01').should be == 1000
   end
 end
