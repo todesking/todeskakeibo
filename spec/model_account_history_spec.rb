@@ -1,6 +1,6 @@
 require 'spec/model_spec_helper.rb'
 
-describe AccountHistory,'with empty, and no transactions' do
+describe AccountHistory,'with no history' do
   before(:all) do
     ModelSpecHelper.setup_database
   end
@@ -15,7 +15,7 @@ describe AccountHistory,'with empty, and no transactions' do
   end
 end
 
-describe AccountHistory,'with some histories, and no transactions' do
+describe AccountHistory,'with some histories' do
   before(:all) do
     ModelSpecHelper.setup_database
   end
@@ -30,10 +30,6 @@ describe AccountHistory,'with some histories, and no transactions' do
     ].each{|t|
       AccountHistory.new(t).save
     }
-  end
-  it 'should 0 yen in bank before history begins' do
-    AccountHistory.amount_at('bank','2008-09-30').should be==0
-    AccountHistory.amount_at('bank','2007-10-03').should be==0
   end
   it 'should exists the history at 2008-10-02' do
     AccountHistory.find_by_date('2008-10-02').should_not be_nil
@@ -51,15 +47,5 @@ describe AccountHistory,'with some histories, and no transactions' do
   end
   it 'should 1000 yen in bank at 2008-10-01' do
     AccountHistory.amount_at('bank','2008-10-01').should be == 1000
-  end
-end
-
-describe AccountHistory,'with no histories, and some transactions' do
-  before(:all) do
-    ModelSpecHelper.setup_database
-  end
-  before(:each) do
-    AccountHistory.delete_all
-    Transaction.delete_all
   end
 end
