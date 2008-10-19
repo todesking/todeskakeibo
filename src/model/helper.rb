@@ -13,7 +13,8 @@ module ModelHelper
         date date not null,
         src string not null,
         dest string not null,
-        amount integer not null
+        amount integer not null,
+        description text
       )
     EOS
     AccountHistory.connection.execute 'drop table if exists account_histories'
