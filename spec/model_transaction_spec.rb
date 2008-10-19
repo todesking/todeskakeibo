@@ -19,3 +19,15 @@ describe Transaction do
     Transaction.find(:first).amount.should be == 1000
   end
 end
+
+describe Transaction,'when no transactions' do
+  before(:all) do
+    ModelSpecHelper.setup_database
+  end
+  before(:each) do
+    Transaction.delete_all
+  end
+  it 'should return 0 when balance_between called' do
+    Transaction.balance_between('bank',Date.new(2008,10,1),Date.new(2008,12,1)).should be == 0
+  end
+end
