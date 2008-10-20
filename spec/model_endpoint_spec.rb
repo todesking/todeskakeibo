@@ -32,21 +32,17 @@ describe Endpoint,'with some account histories and some transactions' do
       instance_variable_set('@'+ep.name,ep)
     }
     Transaction.delete_all
-    [
-      { :date => '2008-9-30', :src => @bank, :dest => @house_rent,:amount=>50000 },
-      { :date => '2008-10-3', :src => @bank, :dest => @wallet, :amount => 5000 }
-    ].each{|t|
-      Transaction.new(t).save
-    }
+    ModelSpecHelper.create_transactions [
+      [9,30,@bank,@house_rent,50000],
+      [10,3,@bank,@wallet,5000]
+    ]
     AccountHistory.delete_all
-    [
-      { :date => '2008-10-1', :endpoint => @bank, :amount => 10000 },
-      { :date => '2008-10-2', :endpoint => @wallet, :amount => 2000 },
-      { :date => '2008-10-3', :endpoint => @bank, :amount => 20000 },
-      { :date => '2008-10-4', :endpoint => @wallet, :amount => 4000 }
-    ].each{|ah|
-      AccountHistory.new(ah).save
-    }
+    ModelSpecHelper.create_account_history [
+      [10,1,@bank,10000],
+      [10,2,@wallet,2000],
+      [10,3,@bank,20000],
+      [10,4,@wallet,4000]
+    ]
     @bank.should_not be_nil
     @bank.name.should be == 'bank'
   end
