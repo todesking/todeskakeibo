@@ -9,4 +9,11 @@ class Endpoint < ActiveRecord::Base
       return history.amount + Transaction.balance_between(self,history.date,at)
     end
   end
+  def descendants
+    result=self.children
+    self.children.each{|c|
+      result << c.descendants
+    }
+    return result
+  end
 end

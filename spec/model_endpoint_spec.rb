@@ -134,4 +134,11 @@ describe Endpoint,'with nested' do
     @utility_bill.children.length.should be == 1
     @utility_bill.children[0].should be == @electricity_bill
   end
+  it 'should be returns all descendants' do
+    @electricity_bill.descendants.length.should be == 0
+    @expanse.descendants.length.should be == 3
+    @expanse.descendants.include?(@food).should be_true
+    @expanse.descendants.include?(@utility_bill).should be_true
+    @expanse.descendants.include?(@electricity_bill).should be_true
+  end
 end
