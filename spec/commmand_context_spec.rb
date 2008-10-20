@@ -11,9 +11,10 @@ describe CommandContext do
     @context.base_date=Date.new #only check no-error
   end
   it 'should create date from mmdd based on base_date' do
-    pending
     @context.base_date=Date.new(2008,10,10)
     @context.date('1001').should be == Date.new(2008,10,1)
+    @context.date('01').should be == Date.new(2008,10,1)
+    @context.date('1').should be == Date.new(2008,10,1)
   end
   it 'should error when date called with wrong format passed' do
     lambda { @context.date('totally-wrong') }.should raise_error(ArgumentError)
