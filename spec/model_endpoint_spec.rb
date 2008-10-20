@@ -55,12 +55,8 @@ describe Endpoint,'with some account histories and some transactions' do
     ].each{|ah|
       AccountHistory.new(ah).save
     }
-    @bank=Endpoint.find_by_name 'bank'
-    @wallet=Endpoint.find_by_name 'wallet'
-    @food=Endpoint.find_by_name 'food'
     @bank.should_not be_nil
-    @wallet.should_not be_nil
-    @food.should_not be_nil
+    @bank.name.should be == 'bank'
   end
   it 'should returns collect amount at 9-29' do
     date=Date.new(2008,9,29)

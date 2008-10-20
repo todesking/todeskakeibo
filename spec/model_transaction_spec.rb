@@ -44,6 +44,9 @@ describe Transaction,'in common' do
     lambda {Transaction.balance_between(@bank,Date.new(2008,9,30),Date.new(2008,9,29))}.should raise_error(ArgumentError)
     lambda {Transaction.balance_between(@bank,Date.new(2008,9,30),Date.new(2008,9,30))}.should_not raise_error
   end
+  it 'should error when balance_between called with non Endpoint object as 1st arg' do
+    lambda {Transaction.balance_between('bank',Date.new(2008,9,30),Date.new(2008,10,1))}.should raise_error(ArgumentError)
+  end
 end
 
 describe Transaction,'when no transactions' do
@@ -52,6 +55,9 @@ describe Transaction,'when no transactions' do
   end
   before(:each) do
     Transaction.delete_all
+    Endpoint.delete_all
+    @bank=Endpoint.new(:name=>'bank')
+    @bank.save
   end
   it 'should return 0 when balance_between called' do
     Transaction.balance_between(@bank,Date.new(2008,10,1),Date.new(2008,12,1)).should be == 0
