@@ -1,4 +1,4 @@
-require File.dirname(__FILE__)+'/'+'../src/model/helper.rb'
+require File.dirname(__FILE__)+'/'+'../../src/model/helper.rb'
 
 module ModelSpecHelper
   def self.setup_database

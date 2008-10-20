@@ -1,4 +1,4 @@
-require 'spec/model_spec_helper.rb'
+require 'spec/model/spec_helper.rb'
 
 describe Endpoint,'with no transactions and no account history' do
   before(:all) do

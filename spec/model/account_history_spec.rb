@@ -1,4 +1,4 @@
-require 'spec/model_spec_helper.rb'
+require 'spec/model/spec_helper.rb'
 
 describe AccountHistory,'with no history' do
   before(:all) do
