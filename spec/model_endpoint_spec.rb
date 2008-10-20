@@ -118,5 +118,20 @@ describe Endpoint,'with nested' do
       endpoint.save
       instance_variable_set('@'+ep[:name],endpoint)
     }
+    @bank.parent=@stash
+    @utility_bill.parent=@expanse
+    @electricity_bill.parent=@utility_bill
+    @food.parent=@expanse
+    [@bank,@utility_bill,@electricity_bill,@food].each{|ep|ep.save}
+  end
+  it 'should be returns collect parent' do
+    @bank.parent.should be == @stash
+    @electricity_bill.parent.should be == @utility_bill
+    @electricity_bill.parent.parent.should be == @expanse
+  end
+  it 'should be returns collect children' do
+    @bank.children.length.should be == 0
+    @utility_bill.children.length.should be == 1
+    @utility_bill.children[0].should be == @electricity_bill
   end
 end
