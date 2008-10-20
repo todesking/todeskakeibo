@@ -122,4 +122,9 @@ describe Transaction,'when some transactions' do
     assert_balance_between('house_rent' , a , b , +50000  )
     assert_balance_between('office'     , a , b , -100000 )
   end
+  it 'should accept nil for from and to argument' do
+    assert_balance_between('bank' ,  nil                 ,  Date.new(2008,10,4 ) ,  +45000)
+    assert_balance_between('bank' ,  Date.new(2008,10,3) ,  nil                  ,  0     )
+    assert_balance_between('bank' ,  Date.new(2008,10,2) ,  nil                  ,  35000)
+  end
 end
