@@ -2,6 +2,8 @@ require 'rubygems'
 require 'active_record'
 
 class Transaction < ActiveRecord::Base
+  belongs_to :src,{ :class_name => 'Endpoint', :foreign_key => :src }
+  belongs_to :dest,{ :class_name => 'Endpoint', :foreign_key => :dest }
   # note: from,to is Date, inclusive
   def self.balance_between(stash_name,from,to)
     raise ArgumentError.new('from > to') unless from.nil? || to.nil? || from <= to

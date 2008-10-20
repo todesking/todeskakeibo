@@ -32,14 +32,17 @@ describe Endpoint,'with some account histories and some transactions' do
     [
       { :name => 'bank' },
       { :name => 'wallet' },
-      { :name => 'food' }
+      { :name => 'food' },
+      { :name => 'house_rent' }
     ].each{|ep|
-      Endpoint.new(ep).save
+      endpoint=Endpoint.new(ep)
+      endpoint.save
+      instance_variable_set('@'+ep[:name],endpoint)
     }
     Transaction.delete_all
     [
-      { :date => '2008-9-30', :src => 'bank', :dest => 'house_rent',:amount=>50000 },
-      { :date => '2008-10-3', :src => 'bank', :dest => 'wallet', :amount => 5000 }
+      { :date => '2008-9-30', :src => @bank, :dest => @house_rent,:amount=>50000 },
+      { :date => '2008-10-3', :src => @bank, :dest => @wallet, :amount => 5000 }
     ].each{|t|
       Transaction.new(t).save
     }

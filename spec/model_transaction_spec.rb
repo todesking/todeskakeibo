@@ -88,7 +88,15 @@ describe Transaction,'when some transactions' do
     }
   end
 
-
+  it 'should return proper Endpoint object when src/dest called' do
+    t=Transaction.find(:first,:conditions=>{:id=>1})
+    t.date.should be == Date.new(2008,9,29)
+    t.amount.should be == 10000
+    t.src.should_not be_nil
+    t.dest.should_not be_nil
+    t.src.name.should be == 'bank'
+    t.dest.name.should be == 'wallet'
+  end
   def assert_balance_between(name,from,to,expected_balance)
     Transaction.balance_between(name,from,to).should be == expected_balance
   end
