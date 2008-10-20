@@ -58,6 +58,9 @@ describe Endpoint,'with some account histories and some transactions' do
     @bank.should_not be_nil
     @bank.name.should be == 'bank'
   end
+  it 'should error when amount_at called with non Date object as 1st arg' do
+    lambda{@bank.amount_at('2008-10-1')}.should raise_error(ArgumentError)
+  end
   it 'should returns collect amount at 9-29' do
     date=Date.new(2008,9,29)
     @bank.amount_at(date).should be == 0
