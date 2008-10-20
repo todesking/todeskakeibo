@@ -31,4 +31,7 @@ describe EndpointAlias,'when some aliases' do
     EndpointAlias.lookup('w').should be == @wallet
     EndpointAlias.lookup('b').should be == @bank
   end
+  it 'should lookup endpoint by endpoint\'s real name(not alias name)' do
+    EndpointAlias.lookup('wallet').should be == @wallet
+  end
 end
