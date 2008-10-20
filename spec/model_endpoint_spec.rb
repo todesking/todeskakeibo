@@ -61,6 +61,14 @@ describe Endpoint,'with some account histories and some transactions' do
   it 'should error when amount_at called with non Date object as 1st arg' do
     lambda{@bank.amount_at('2008-10-1')}.should raise_error(ArgumentError)
   end
+  it 'should has null parent by default' do
+    @bank.parent.should be_nil
+  end
+  it 'should can set parent Endpoint' do
+    #this is meaningless code
+    @bank.parent=@wallet
+    @bank.parent.name.should be == 'wallet'
+  end
   it 'should returns collect amount at 9-29' do
     date=Date.new(2008,9,29)
     @bank.amount_at(date).should be == 0
@@ -89,5 +97,26 @@ describe Endpoint,'with some account histories and some transactions' do
     date=Date.new(2008,10,3)
     @bank.amount_at(date).should be == 15000
     @wallet.amount_at(date).should be == 7000
+  end
+end
+
+describe Endpoint,'with nested' do
+  before(:all) do
+    ModelSpecHelper.setup_database
+  end
+  before(:each) do
+    Endpoint.delete_all
+    [
+      {:name => 'stash'},
+      {:name => 'bank'},
+      {:name => 'expanse'},
+      {:name => 'utility_bill'},
+      {:name => 'electricity_bill'},
+      {:name => 'food'}
+    ].each{|ep|
+      endpoint=Endpoint.new(ep)
+      endpoint.save
+      instance_variable_set('@'+ep[:name],endpoint)
+    }
   end
 end

@@ -31,6 +31,7 @@ module ModelHelper
     Endpoint.connection.execute <<-'EOS'
       create table endpoints (
         id integer not null primary key,
+        parent integer,
         name varchar(255) not null unique
       )
     EOS

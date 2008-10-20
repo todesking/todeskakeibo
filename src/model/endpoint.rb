@@ -1,5 +1,5 @@
 class Endpoint < ActiveRecord::Base
-  belongs_to :endpoint
+  belongs_to :parent,:class_name=>'Endpoint',:foreign_key=>:parent
   def amount_at(at)
     history=AccountHistory.newest_history(self,at)
     if history.nil?
