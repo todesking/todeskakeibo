@@ -1,4 +1,5 @@
 class Endpoint < ActiveRecord::Base
+  belongs_to :endpoint
   def amount_at(at)
     history=AccountHistory.newest_history(self,at)
     if history.nil?

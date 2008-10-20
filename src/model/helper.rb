@@ -23,7 +23,7 @@ module ModelHelper
       create table account_histories (
         id integer not null primary key,
         date date not null,
-        name string not null,
+        endpoint string not null,
         amount integer not null
       )
     EOS

@@ -3,6 +3,10 @@ require 'spec/model_spec_helper.rb'
 describe AccountHistory,'with no history' do
   before(:all) do
     ModelSpecHelper.setup_database
+    @wallet=Endpoint.new(:name=>'wallet')
+    @wallet.save
+    @bank=Endpoint.new(:name=>'bank')
+    @bank.save
   end
   before(:each) do
     AccountHistory.delete_all
@@ -29,13 +33,21 @@ describe AccountHistory,'with some histories' do
     }
     AccountHistory.delete_all
     [
-      { :date => '2008-10-01', :name => @bank, :amount => 1000},
-      { :date => '2008-10-02', :name => @bank, :amount => 2000},
-      { :date => '2008-10-03', :name => @bank, :amount => 3000},
-      { :date => '2008-10-04', :name => @bank, :amount => 1500}
+      { :date => '2008-10-01', :endpoint => @bank, :amount => 1000},
+      { :date => '2008-10-02', :endpoint => @bank, :amount => 2000},
+      { :date => '2008-10-03', :endpoint => @bank, :amount => 3000},
+      { :date => '2008-10-04', :endpoint => @bank, :amount => 1500}
     ].each{|t|
       AccountHistory.new(t).save
     }
+  end
+  it 'should error when newest_history called with non Endpoint object as 1st argument' do
+    lambda{AccountHistory.newest_history('bank',Date.new(2008,10,3))}.should raise_error(ArgumentError)
+    lambda{AccountHistory.newest_history(nil,Date.new(2008,10,3))}.should raise_error(ArgumentError)
+  end
+  it 'should error when newest_history called with non Date object as 2nd argument' do
+    lambda{AccountHistory.newest_history(@bank,nil)}.should raise_error(ArgumentError)
+    lambda{AccountHistory.newest_history(@bank,'2008-10-1')}.should raise_error(ArgumentError)
   end
   it 'should exists the history at 2008-10-02' do
     AccountHistory.find_by_date('2008-10-02').should_not be_nil

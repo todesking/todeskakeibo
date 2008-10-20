@@ -48,10 +48,10 @@ describe Endpoint,'with some account histories and some transactions' do
     }
     AccountHistory.delete_all
     [
-      { :date => '2008-10-1', :name => 'bank', :amount => 10000 },
-      { :date => '2008-10-2', :name => 'wallet', :amount => 2000 },
-      { :date => '2008-10-3', :name => 'bank', :amount => 20000 },
-      { :date => '2008-10-4', :name => 'wallet', :amount => 4000 }
+      { :date => '2008-10-1', :endpoint => @bank, :amount => 10000 },
+      { :date => '2008-10-2', :endpoint => @wallet, :amount => 2000 },
+      { :date => '2008-10-3', :endpoint => @bank, :amount => 20000 },
+      { :date => '2008-10-4', :endpoint => @wallet, :amount => 4000 }
     ].each{|ah|
       AccountHistory.new(ah).save
     }
