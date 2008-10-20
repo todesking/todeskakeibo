@@ -1,2 +1,0 @@
-class AccountHistoryNotFoundError < StandardError
-end
