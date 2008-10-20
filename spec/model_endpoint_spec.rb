@@ -85,7 +85,7 @@ describe Endpoint,'with some account histories and some transactions' do
   end
   it 'should returns collect amount at 10-3' do
     date=Date.new(2008,10,3)
-    @bank.amount_at(date).should be == 16000
-    @wallet.amount_at(date).should be == 8000
+    @bank.amount_at(date).should be == 15000
+    @wallet.amount_at(date).should be == 7000
   end
 end
