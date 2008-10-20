@@ -3,6 +3,7 @@ require 'active_record'
 
 require File.dirname(__FILE__)+'/'+'../model/transaction.rb'
 require File.dirname(__FILE__)+'/'+'../model/account_history.rb'
+require File.dirname(__FILE__)+'/'+'../model/endpoint.rb'
 
 module ModelHelper
   def self.create_tables
