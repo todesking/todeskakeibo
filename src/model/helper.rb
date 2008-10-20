@@ -4,6 +4,7 @@ require 'active_record'
 require File.dirname(__FILE__)+'/'+'../model/transaction.rb'
 require File.dirname(__FILE__)+'/'+'../model/account_history.rb'
 require File.dirname(__FILE__)+'/'+'../model/endpoint.rb'
+require File.dirname(__FILE__)+'/'+'../model/endpoint_alias.rb'
 
 module ModelHelper
   def self.create_tables
@@ -33,6 +34,14 @@ module ModelHelper
         id integer not null primary key,
         parent integer,
         name varchar(255) not null unique
+      )
+    EOS
+    EndpointAlias.connection.execute 'drop table if exists endpoint_aliases'
+    EndpointAlias.connection.execute <<-'EOS'
+      create table endpoint_aliases (
+        id integer not null primary key,
+        name varchar(255) not null unique,
+        endpoint integer not null
       )
     EOS
   end
