@@ -155,29 +155,69 @@ describe Transaction,'when some transactions' do
     assert_balance_between(@bank ,  Date.new(2008,10,2) ,  nil                  ,  35000)
   end
 end
-describe Transaction,'with real data' do
+describe Transaction,'with nested endpoint' do
   before(:all) do
     ModelSpecHelper.setup_database
   end
   before(:each) do
     Endpoint.delete_all
     ModelSpecHelper.create_nested_endpoints [
-      :bank, :wallet, :food, :house_rent, :office
+      :stash,
+      [:bank,:stash],
+      [:wallet,:stash],
+      :income,
+      [:company,:income],
+      :expense,
+      [:food,:expense],
+      [:eatout,:expense],
+      [:transfer,:expense],
+      [:item,:expense],
+      [:utility_bill,:expense],
+      [:electricity_bill,:utility_bill]
     ]
     Endpoint.find(:all).each{|ep|
       instance_variable_set('@'+ep.name,ep)
     }
     Transaction.delete_all
-    [
-      { :date => Date.new(2008 , 9  , 29) , :src => @bank   , :dest => @wallet     , :amount => 10000  },
-      { :date => Date.new(2008 , 9  , 30) , :src => @wallet , :dest => @food       , :amount => 2000   },
-      { :date => Date.new(2008 , 10 , 1)  , :src => @wallet , :dest => @bank       , :amount => 20000  },
-      { :date => Date.new(2008 , 10 , 2)  , :src => @office , :dest => @bank       , :amount => 100000 },
-      { :date => Date.new(2008 , 10 , 2)  , :src => @bank   , :dest => @house_rent , :amount => 50000  },
-      { :date => Date.new(2008 , 10 , 2)  , :src => @bank   , :dest => @wallet     , :amount => 15000  },
-      { :date => Date.new(2008 , 10 , 4)  , :src => @wallet , :dest => @food       , :amount => 2500   }
-    ].each {|t|
-      Transaction.new(t).save
-    }
+    ModelSpecHelper.create_transactions [
+      [10,1,@bank,@wallet,20000],
+      [10,1,@wallet,@food,2000],
+      [10,2,@wallet,@eatout,800],
+      [10,3,@wallet,@eatout,500],
+      [10,10,@bank,@wallet,10000],
+      [10,10,@wallet,@eatout,700],
+      [10,10,@wallet,@eatout,300],
+      [10,11,@wallet,@expense,1000],
+      [10,15,@company,@bank,100000],
+      [10,16,@bank,@wallet,20000],
+      [10,18,@wallet,@transfer,10000],
+      [10,19,@wallet,@utility_bill,5000],
+      [10,20,@wallet,@electricity_bill,2000],
+      [11,1,@bank,@wallet,20000],
+      [11,15,@company,@bank,100000],
+      [11,16,@wallet,@eatout,1000],
+      [11,18,@wallet,@transfer,10000],
+      [11,20,@bank,@wallet,30000],
+      [2009,1,1,@bank,@wallet,10000],
+      [2009,1,3,@wallet,@food,2000],
+      [2009,1,15,@company,@bank,150000]
+    ]
+    AccountHistory.delete_all
+    ModelSpecHelper.create_account_history [
+      [10,1,@bank,200000],
+      [10,1,@wallet,1000],
+      [10,5,@bank,180000], # exactly
+      [10,5,@wallet,17000], # unrecorded 700 jpy
+      [11,1,@bank,100000],
+      [11,1,@wallet,3000],
+      [2009,1,5,@bank,10000],
+      [2009,1,5,@wallet,10000]
+    ]
+  end
+  it 'should returns expense endpoint\'s balance between 10-10 to 10-15(sub endpoint is excluded)' do
+    Transaction.balance_between(@expense,Date.new(2008,10,10),Date.new(2008,10,15)).should be == 1000
+  end
+  it 'should returns expense endpoint\'s balance between 10-10 to 10-15(sub endpoint is included)' do
+    Transaction.balance_between(@expense,Date.new(2008,10,10),Date.new(2008,10,15),true).should be == 2000
   end
 end

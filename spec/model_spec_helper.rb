@@ -26,12 +26,22 @@ module ModelSpecHelper
   end
   def self.create_account_history defs
     defs.each{|d|
-      AccountHistory.new(:date => Date.new(2008,d[0],d[1]), :endpoint => d[2], :amount => d[3]).save
+      if d.length==5
+        year=d.shift
+      else
+        year=2008
+      end
+      AccountHistory.new(:date => Date.new(year,d[0],d[1]), :endpoint => d[2], :amount => d[3]).save
     }
   end
   def self.create_transactions defs
     defs.each{|d|
-      Transaction.new(:date=>Date.new(2008,d[0],d[1]), :src=>d[2],:dest=>d[3],:amount=>d[4]).save
+      if d.length==6
+        year=d.shift
+      else
+        year=2008
+      end
+      Transaction.new(:date=>Date.new(year,d[0],d[1]), :src=>d[2],:dest=>d[3],:amount=>d[4]).save
     }
   end
 end
