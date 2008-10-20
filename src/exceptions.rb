@@ -1,0 +1,2 @@
+class AccountHistoryNotFoundError < StandardError
+end
