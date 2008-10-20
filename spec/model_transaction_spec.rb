@@ -220,4 +220,10 @@ describe Transaction,'with nested endpoint' do
   it 'should returns expense endpoint\'s balance between 10-10 to 10-15(sub endpoint is included)' do
     Transaction.balance_between(@expense,Date.new(2008,10,10),Date.new(2008,10,15),true).should be == 2000
   end
+  it 'should returns balance of specified day/month/year' do
+    Transaction.balance_at(@wallet,2009).should be == +8000
+    Transaction.balance_at(@wallet,2008,11).should be == +39000
+    Transaction.balance_at(@wallet,2008,10,10).should be == +9000
+    Transaction.balance_at(@wallet,2009,1,3).should be == -2000
+  end
 end

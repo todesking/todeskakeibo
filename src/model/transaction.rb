@@ -24,4 +24,21 @@ class Transaction < ActiveRecord::Base
     income=Transaction.sum('amount',:conditions=>cond)
     return income - expenses
   end
+  def self.balance_at(endpoint,year,month=nil,day=nil)
+    raise ArgumentError if endpoint.nil?
+    raise ArgumentError if year.nil?
+    raise ArgumentError('day argument must nil when month==nil') if month.nil? && !day.nil?
+
+    if(month.nil?)
+      date_cond='%04d-%%' % [year]
+    elsif day.nil?
+      date_cond='%04d-%02d-%%' % [year,month]
+    elsif
+      date_cond='%04d-%02d-%02d' % [year,month,day]
+    end
+
+    expenses=Transaction.sum(:amount,:conditions=>['src = ? and date like ?',endpoint,date_cond])
+    income=Transaction.sum(:amount,:conditions=>['dest = ? and date like ?',endpoint,date_cond])
+    return income-expenses
+  end
 end
