@@ -34,4 +34,7 @@ describe EndpointAlias,'when some aliases' do
   it 'should lookup endpoint by endpoint\'s real name(not alias name)' do
     EndpointAlias.lookup('wallet').should be == @wallet
   end
+  it 'should return nil when unknown alias/real name passed' do
+    EndpointAlias.lookup('hage').should be_nil
+  end
 end
