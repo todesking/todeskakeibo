@@ -6,13 +6,9 @@ describe Endpoint,'with no transactions and no account history' do
   end
   before(:each) do
     Endpoint.delete_all
-    [
-      { :name => 'bank' },
-      { :name => 'wallet' },
-      { :name => 'food' }
-    ].each{|ep|
-      Endpoint.new(ep).save
-    }
+    ModelSpecHelper.create_nested_endpoints [
+      :food,:wallet,:bank
+    ]
     Transaction.delete_all
     AccountHistory.delete_all
   end
@@ -29,15 +25,11 @@ describe Endpoint,'with some account histories and some transactions' do
   end
   before(:each) do
     Endpoint.delete_all
-    [
-      { :name => 'bank' },
-      { :name => 'wallet' },
-      { :name => 'food' },
-      { :name => 'house_rent' }
-    ].each{|ep|
-      endpoint=Endpoint.new(ep)
-      endpoint.save
-      instance_variable_set('@'+ep[:name],endpoint)
+    ModelSpecHelper.create_nested_endpoints [
+      :bank,:wallet,:food,:house_rent
+    ]
+    Endpoint.find(:all).each{|ep|
+      instance_variable_set('@'+ep.name,ep)
     }
     Transaction.delete_all
     [
@@ -106,28 +98,23 @@ describe Endpoint,'with nested' do
   end
   before(:each) do
     Endpoint.delete_all
-    [
-      {:name => 'stash'},
-      {:name => 'bank'},
-      {:name => 'expanse'},
-      {:name => 'utility_bill'},
-      {:name => 'electricity_bill'},
-      {:name => 'food'}
-    ].each{|ep|
-      endpoint=Endpoint.new(ep)
-      endpoint.save
-      instance_variable_set('@'+ep[:name],endpoint)
+    ModelSpecHelper.create_nested_endpoints [
+      [:stash,nil],
+      [:bank,:stash],
+      [:wallet,:stash],
+      [:expense,nil],
+      [:utility_bill,:expense],
+      [:electricity_bill,:utility_bill],
+      [:food,:expense]
+    ]
+    Endpoint.find(:all).each{|ep|
+      instance_variable_set('@'+ep.name,ep)
     }
-    @bank.parent=@stash
-    @utility_bill.parent=@expanse
-    @electricity_bill.parent=@utility_bill
-    @food.parent=@expanse
-    [@bank,@utility_bill,@electricity_bill,@food].each{|ep|ep.save}
   end
   it 'should be returns collect parent' do
     @bank.parent.should be == @stash
     @electricity_bill.parent.should be == @utility_bill
-    @electricity_bill.parent.parent.should be == @expanse
+    @electricity_bill.parent.parent.should be == @expense
   end
   it 'should be returns collect children' do
     @bank.children.length.should be == 0
@@ -136,9 +123,9 @@ describe Endpoint,'with nested' do
   end
   it 'should be returns all descendants' do
     @electricity_bill.descendants.length.should be == 0
-    @expanse.descendants.length.should be == 3
-    @expanse.descendants.include?(@food).should be_true
-    @expanse.descendants.include?(@utility_bill).should be_true
-    @expanse.descendants.include?(@electricity_bill).should be_true
+    @expense.descendants.length.should be == 3
+    @expense.descendants.include?(@food).should be_true
+    @expense.descendants.include?(@utility_bill).should be_true
+    @expense.descendants.include?(@electricity_bill).should be_true
   end
 end

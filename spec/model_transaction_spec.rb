@@ -7,16 +7,11 @@ describe Transaction,'in common' do
   before(:each) do
     Transaction.delete_all
     Endpoint.delete_all
-    [
-      { :name => 'bank' },
-      { :name => 'wallet'},
-      { :name => 'food' },
-      { :name => 'house_rent'},
-      { :name => 'office'}
-    ].each{|ep|
-      endpoint=Endpoint.new(ep)
-      endpoint.save
-      instance_variable_set('@'+ep[:name],endpoint)
+    ModelSpecHelper.create_nested_endpoints [
+      :bank, :wallet, :food, :house_rent, :office
+    ]
+    Endpoint.find(:all).each{|ep|
+      instance_variable_set('@'+ep.name,ep)
     }
   end
   it 'should can store data' do
@@ -69,29 +64,22 @@ describe Transaction,'when some transactions' do
   end
   before(:each) do
     Endpoint.delete_all
-    [
-      { :name => 'bank' },
-      { :name => 'wallet'},
-      { :name => 'food' },
-      { :name => 'house_rent'},
-      { :name => 'office'}
-    ].each{|ep|
-      endpoint=Endpoint.new(ep)
-      endpoint.save
-      instance_variable_set('@'+ep[:name],endpoint)
+    ModelSpecHelper.create_nested_endpoints [
+      :bank, :wallet, :food, :house_rent, :office
+    ]
+    Endpoint.find(:all).each{|ep|
+      instance_variable_set('@'+ep.name,ep)
     }
     Transaction.delete_all
-    [
-      { :date => Date.new(2008 , 9  , 29) , :src => @bank   , :dest => @wallet     , :amount => 10000  },
-      { :date => Date.new(2008 , 9  , 30) , :src => @wallet , :dest => @food       , :amount => 2000   },
-      { :date => Date.new(2008 , 10 , 1)  , :src => @wallet , :dest => @bank       , :amount => 20000  },
-      { :date => Date.new(2008 , 10 , 2)  , :src => @office , :dest => @bank       , :amount => 100000 },
-      { :date => Date.new(2008 , 10 , 2)  , :src => @bank   , :dest => @house_rent , :amount => 50000  },
-      { :date => Date.new(2008 , 10 , 2)  , :src => @bank   , :dest => @wallet     , :amount => 15000  },
-      { :date => Date.new(2008 , 10 , 4)  , :src => @wallet , :dest => @food       , :amount => 2500   }
-    ].each {|t|
-      Transaction.new(t).save
-    }
+    ModelSpecHelper.create_transactions [
+      [9,29,@bank,@wallet,10000],
+      [9,30,@wallet,@food,2000],
+      [10,1,@wallet,@bank,20000],
+      [10,2,@office,@bank,100000],
+      [10,2,@bank,@house_rent,50000],
+      [10,2,@bank,@wallet,15000],
+      [10,4,@wallet,@food,2500]
+    ]
   end
 
   it 'should return proper Endpoint object when src/dest called' do
@@ -165,5 +153,31 @@ describe Transaction,'when some transactions' do
     assert_balance_between(@bank ,  nil                 ,  Date.new(2008,10,4 ) ,  +45000)
     assert_balance_between(@bank ,  Date.new(2008,10,3) ,  nil                  ,  0     )
     assert_balance_between(@bank ,  Date.new(2008,10,2) ,  nil                  ,  35000)
+  end
+end
+describe Transaction,'with real data' do
+  before(:all) do
+    ModelSpecHelper.setup_database
+  end
+  before(:each) do
+    Endpoint.delete_all
+    ModelSpecHelper.create_nested_endpoints [
+      :bank, :wallet, :food, :house_rent, :office
+    ]
+    Endpoint.find(:all).each{|ep|
+      instance_variable_set('@'+ep.name,ep)
+    }
+    Transaction.delete_all
+    [
+      { :date => Date.new(2008 , 9  , 29) , :src => @bank   , :dest => @wallet     , :amount => 10000  },
+      { :date => Date.new(2008 , 9  , 30) , :src => @wallet , :dest => @food       , :amount => 2000   },
+      { :date => Date.new(2008 , 10 , 1)  , :src => @wallet , :dest => @bank       , :amount => 20000  },
+      { :date => Date.new(2008 , 10 , 2)  , :src => @office , :dest => @bank       , :amount => 100000 },
+      { :date => Date.new(2008 , 10 , 2)  , :src => @bank   , :dest => @house_rent , :amount => 50000  },
+      { :date => Date.new(2008 , 10 , 2)  , :src => @bank   , :dest => @wallet     , :amount => 15000  },
+      { :date => Date.new(2008 , 10 , 4)  , :src => @wallet , :dest => @food       , :amount => 2500   }
+    ].each {|t|
+      Transaction.new(t).save
+    }
   end
 end

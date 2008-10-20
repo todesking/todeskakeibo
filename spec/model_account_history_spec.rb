@@ -32,14 +32,12 @@ describe AccountHistory,'with some histories' do
       instance_variable_set('@'+ep[:name],endpoint)
     }
     AccountHistory.delete_all
-    [
-      { :date => '2008-10-01', :endpoint => @bank, :amount => 1000},
-      { :date => '2008-10-02', :endpoint => @bank, :amount => 2000},
-      { :date => '2008-10-03', :endpoint => @bank, :amount => 3000},
-      { :date => '2008-10-04', :endpoint => @bank, :amount => 1500}
-    ].each{|t|
-      AccountHistory.new(t).save
-    }
+    ModelSpecHelper.create_account_history [
+      [10,1,@bank,1000],
+      [10,2,@bank,2000],
+      [10,3,@bank,3000],
+      [10,4,@bank,1500]
+    ]
   end
   it 'should error when newest_history called with non Endpoint object as 1st argument' do
     lambda{AccountHistory.newest_history('bank',Date.new(2008,10,3))}.should raise_error(ArgumentError)
