@@ -5,4 +5,5 @@ class CommandContext
       Date.new($1.to_i,$2.to_i,$3.to_i)
     end
   end
+  attr_accessor :base_date
 end
