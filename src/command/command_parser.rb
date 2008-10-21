@@ -5,7 +5,9 @@ class CommandParser
     @commands={}
   end
   def define_command(name,arg_defs=[],&body)
-    raise ArgumentError if body.nil?
+    raise ArgumentError.new('block not given') if body.nil?
+    raise ArgumentError.new('duplicated name') if @commands.has_key? name
+
     @commands[name]=Command.new(name,ArgumentParser.new(TypeParser.new,arg_defs),&body)
   end
   def exec(command_string)
@@ -15,6 +17,8 @@ class CommandParser
     @commands[name].exec args
   end
   def define_alias(name,alias_for)
+    raise ArgumentError.new("name #{name} was already exists") if @commands.has_key? name
+    raise ArgumentError.new("command #{alias_for} was undefined") if !@commands.has_key? alias_for
     @commands[name]=@commands[alias_for]
   end
 end

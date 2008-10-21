@@ -6,7 +6,8 @@ describe CommandParser,'#define_command and #exec' do
   end
 
   it 'should error when overwriting existing command' do
-    pending
+    @parser.define_command('hage',[]){}
+    lambda{@parser.define_command('hage',[]){}}.should raise_error(ArgumentError)
   end
 
   it 'should error when define_command called with no block' do
@@ -56,7 +57,9 @@ describe CommandParser,'#define_alias' do
   end
 
   it 'should error when overwriting existing alias' do
-    pending
+    @parser.define_command('foo',[]){}
+    @parser.define_alias('f','foo')
+    lambda{@parser.define_alias('f','foo')}.should raise_error(ArgumentError)
   end
 
   it 'should define alias for command' do
@@ -68,6 +71,6 @@ describe CommandParser,'#define_alias' do
   end
 
   it 'should error when defining alias for undefined command' do
-    pending
+    lambda{@parser.define_alias('f','foo')}.should raise_error(ArgumentError)
   end
 end
