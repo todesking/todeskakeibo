@@ -1,3 +1,6 @@
+require 'rubygems'
+require 'active_record'
+
 class Endpoint < ActiveRecord::Base
   belongs_to :parent,:class_name=>'Endpoint',:foreign_key=>:parent
   has_many :children,:class_name=>'Endpoint',:foreign_key=>:parent

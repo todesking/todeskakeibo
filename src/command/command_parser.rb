@@ -1,12 +1,18 @@
+require File.dirname(__FILE__)+'/'+'command.rb'
+require File.dirname(__FILE__)+'/'+'argument_parser.rb'
+require File.dirname(__FILE__)+'/'+'type_parser.rb'
+
 class CommandParser
-  def initialize
+  def initialize(type_parser=TypeParser.new)
     @commands={}
+    @type_parser=type_parser
   end
+  attr_reader :type_parser
   def define_command(name,arg_defs=[],&body)
     raise ArgumentError.new('block not given') if body.nil?
     raise ArgumentError.new('duplicated name') if @commands.has_key? name
 
-    @commands[name]=Command.new(name,ArgumentParser.new(TypeParser.new,arg_defs),&body)
+    @commands[name]=Command.new(name,ArgumentParser.new(@type_parser,arg_defs),&body)
   end
   def execute(command_string)
     args=command_string.split(' ')

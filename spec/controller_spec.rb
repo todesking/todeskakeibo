@@ -5,6 +5,15 @@ describe Controller,'commands' do
   before(:each) do
     @c=Controller.new
     ModelSpecHelper.setup_database
+    ModelSpecHelper.create_nested_endpoints [
+      :stash,
+      [:bank,:stash],
+      [:wallet,:stash],
+      :expense,
+      [:food,:expense]
+    ]
+    ModelSpecHelper.create_transactions [
+    ]
   end
   it 'should define transaction' do
     @c.execute('transaction 20081001 bank wallet 10000')
