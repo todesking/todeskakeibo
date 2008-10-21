@@ -55,4 +55,9 @@ describe ArgumentParser,'#parse' do
   it 'should be parse arguments' do
     @ap.parse(['hoge','1000','1020']).should be == {:arg1 => 'hoge', :arg2 => 1000, :arg3 => Date.new(2008,10,20)}
   end
+  it 'should error when invalid number of arguments' do
+    lambda{@ap.parse(['hoge'])}.should raise_error(ArgumentError)
+    lambda{@ap.parse([])}.should raise_error(ArgumentError)
+    lambda{@ap.parse(['hoge','100','1220','fuba'])}.should raise_error(ArgumentError)
+  end
 end

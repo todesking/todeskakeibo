@@ -18,7 +18,6 @@ describe CommandParser do
   end
 
   it 'should error when command executed with wrong number of arguments' do
-    pending
     @parser.define_command('command',[[:string_arg,String]]) do
       @string_arg
     end

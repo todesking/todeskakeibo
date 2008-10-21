@@ -8,12 +8,12 @@ class CommandParser
   end
   def define_command(name,arg_defs=[],&body)
     raise ArgumentError if body.nil?
-    @commands[name]=Command.new
+    @commands[name]=Command.new(name,ArgumentParser.new(@context,arg_defs),&body)
   end
   def exec(command_string)
     args=command_string.split(' ')
     name=args.shift
     raise ArgumentError.new('unknown command') unless @commands.has_key? name
-    @commands[name].call
+    @commands[name].exec args
   end
 end

@@ -1,5 +1,11 @@
 require File.dirname(__FILE__)+'/'+'../../src/command/command.rb'
 
+describe Command,'when initialize' do
+  it 'should error when no block given' do
+    lambda{Command.new('hoge',ArgumentParser.new(CommandContext.new,[]))}.should raise_error(ArgumentError)
+  end
+end
+
 describe Command,'with no arguments' do
   before(:each) do
     @context=CommandContext.new

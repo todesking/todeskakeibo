@@ -8,6 +8,7 @@ class ArgumentParser
     defs=@defs.clone
     result={}
     while(0 < defs.length)
+      raise ArgumentError.new('arguments too short') if args.length==0
       d=defs.shift
       name,type=d
       a=args.shift

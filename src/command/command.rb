@@ -1,6 +1,6 @@
 class Command
   def initialize(name,arg_parser,&body)
-    raise ArgumentError('block must be given') if body.nil?
+    raise ArgumentError.new('block must be given') if body.nil?
     @name=name
     @arg_parser=arg_parser
     @body=body
