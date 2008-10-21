@@ -5,7 +5,7 @@ class Command
     @arg_parser=arg_parser
     @body=body
   end
-  def exec args
+  def execute args
     args=@arg_parser.parse(args)
     execution_context=Object.new
     args.each{|k,v|

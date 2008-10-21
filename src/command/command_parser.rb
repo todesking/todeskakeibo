@@ -10,11 +10,11 @@ class CommandParser
 
     @commands[name]=Command.new(name,ArgumentParser.new(TypeParser.new,arg_defs),&body)
   end
-  def exec(command_string)
+  def execute(command_string)
     args=command_string.split(' ')
     name=args.shift
     raise ArgumentError.new('unknown command') unless @commands.has_key? name
-    @commands[name].exec args
+    @commands[name].execute args
   end
   def define_alias(name,alias_for)
     raise ArgumentError.new("name #{name} was already exists") if @commands.has_key? name

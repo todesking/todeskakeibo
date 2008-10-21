@@ -14,10 +14,10 @@ describe Command,'with no arguments' do
     end
   end
   it 'should raise error when arguments passed' do
-    lambda{@command.exec('some arguments')}.should raise_error(ArgumentError)
+    lambda{@command.execute('some arguments')}.should raise_error(ArgumentError)
   end
-  it 'should success exec with no argument' do
-    @command.exec([]).should be == 'command return value'
+  it 'should success execute with no argument' do
+    @command.execute([]).should be == 'command return value'
   end
 end
 
@@ -31,6 +31,6 @@ describe Command,'with some arguments' do
       [@arg1,@arg2,@arg3].should this.be == ['hage',100,Date.new(2008,10,11)]
       'executed'
     }
-    cmd.exec(['hage','100','20081011']).should be == 'executed'
+    cmd.execute(['hage','100','20081011']).should be == 'executed'
   end
 end
