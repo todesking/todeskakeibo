@@ -10,9 +10,7 @@ describe Transaction,'in common' do
     ModelSpecHelper.create_nested_endpoints [
       :bank, :wallet, :food, :house_rent, :office
     ]
-    Endpoint.find(:all).each{|ep|
-      instance_variable_set('@'+ep.name,ep)
-    }
+    ModelSpecHelper.import_endpoints self
   end
   it 'should can store data' do
     Transaction.find(:all).length.should be == 0
@@ -67,9 +65,7 @@ describe Transaction,'when some transactions' do
     ModelSpecHelper.create_nested_endpoints [
       :bank, :wallet, :food, :house_rent, :office
     ]
-    Endpoint.find(:all).each{|ep|
-      instance_variable_set('@'+ep.name,ep)
-    }
+    ModelSpecHelper.import_endpoints self
     Transaction.delete_all
     ModelSpecHelper.create_transactions [
       [9,29,@bank,@wallet,10000],
@@ -175,9 +171,7 @@ describe Transaction,'with nested endpoint' do
       [:utility_bill,:expense],
       [:electricity_bill,:utility_bill]
     ]
-    Endpoint.find(:all).each{|ep|
-      instance_variable_set('@'+ep.name,ep)
-    }
+    ModelSpecHelper.import_endpoints self
     Transaction.delete_all
     ModelSpecHelper.create_transactions [
       [10,1,@bank,@wallet,20000],

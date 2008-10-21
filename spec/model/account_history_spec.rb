@@ -23,14 +23,10 @@ describe AccountHistory,'with some histories' do
   end
   before(:each) do
     Endpoint.delete_all
-    [
-      { :name => 'bank' },
-      { :name => 'wallet'},
-    ].each{|ep|
-      endpoint=Endpoint.new(ep)
-      endpoint.save
-      instance_variable_set('@'+ep[:name],endpoint)
-    }
+    ModelSpecHelper.create_nested_endpoints [
+      :bank, :wallet
+    ]
+    ModelSpecHelper.import_endpoints self
     AccountHistory.delete_all
     ModelSpecHelper.create_account_history [
       [10,1,@bank,1000],

@@ -16,9 +16,7 @@ describe EndpointAlias,'when some aliases' do
       [:wallet,:stash],
       [:bank,:stash]
     ]
-    Endpoint.find(:all).each{|ep|
-      instance_variable_set('@'+ep.name,ep)
-    }
+    ModelSpecHelper.import_endpoints self
     EndpointAlias.delete_all
     ModelSpecHelper.create_endpoint_aliases [
       [:wa,@wallet],

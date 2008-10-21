@@ -12,11 +12,16 @@ describe Controller,'commands' do
       :expense,
       [:food,:expense]
     ]
+    ModelSpecHelper.import_endpoints self
+    ModelSpecHelper.create_endpoint_aliases [
+      [:w,@wallet],
+      [:b,@bank]
+    ]
     ModelSpecHelper.create_transactions [
     ]
   end
   it 'should define transaction' do
-    @c.execute('transaction 20081001 bank wallet 10000')
+    @c.execute('transaction 20081001 b wallet 10000')
     Transaction.find(:first).src.name.should be == 'bank'
     Transaction.find(:first).amount.should be == 10000
   end

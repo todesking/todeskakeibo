@@ -28,9 +28,7 @@ describe Endpoint,'with some account histories and some transactions' do
     ModelSpecHelper.create_nested_endpoints [
       :bank,:wallet,:food,:house_rent
     ]
-    Endpoint.find(:all).each{|ep|
-      instance_variable_set('@'+ep.name,ep)
-    }
+    ModelSpecHelper.import_endpoints self
     Transaction.delete_all
     ModelSpecHelper.create_transactions [
       [9,30,@bank,@house_rent,50000],
@@ -103,9 +101,7 @@ describe Endpoint,'with nested' do
       [:electricity_bill,:utility_bill],
       [:food,:expense]
     ]
-    Endpoint.find(:all).each{|ep|
-      instance_variable_set('@'+ep.name,ep)
-    }
+    ModelSpecHelper.import_endpoints self
   end
   it 'should be returns collect parent' do
     @bank.parent.should be == @stash

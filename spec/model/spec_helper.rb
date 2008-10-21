@@ -24,6 +24,11 @@ module ModelSpecHelper
       ep.save
     }
   end
+  def self.import_endpoints target_object
+    Endpoint.find(:all).each{|ep|
+      target_object.instance_variable_set('@'+ep.name,ep)
+    }
+  end
   def self.create_account_history defs
     defs.each{|d|
       if d.length==5
@@ -44,6 +49,7 @@ module ModelSpecHelper
       Transaction.new(:date=>Date.new(year,d[0],d[1]), :src=>d[2],:dest=>d[3],:amount=>d[4]).save
     }
   end
+  # defs: [[:alias_name, Endpoint]... ]
   def self.create_endpoint_aliases defs
     defs.each{|d|
       EndpointAlias.new(:name=>d[0].to_s,:endpoint=>d[1]).save
