@@ -8,7 +8,7 @@ class CommandParser
   end
   def define_command(name,arg_defs=[],&body)
     raise ArgumentError if body.nil?
-    @commands[name]=Command.new(name,ArgumentParser.new(@context,arg_defs),&body)
+    @commands[name]=Command.new(name,ArgumentParser.new(TypeParser.new,arg_defs),&body)
   end
   def exec(command_string)
     args=command_string.split(' ')
