@@ -20,13 +20,23 @@ describe Controller,'commands' do
     ModelSpecHelper.create_transactions [
     ]
   end
+
+  it 'should define base_date' do
+    @c.execute('base_date 20071011')
+    @c.execute('transaction 10 b wallet 10000')
+    tr=Transaction.find(:first)
+    tr.date.should be == Date.new(2007,10,10)
+  end
+
   it 'should define transaction' do
     @c.execute('transaction 20081001 b wallet 10000')
     tr=Transaction.find(:first)
+    tr.date.should be == Date.new(2008,10,1)
     tr.src.should be == @bank
     tr.dest.should be == @wallet
     tr.amount.should be == 10000
   end
+
   it 'should define account' do
     @c.execute('account 20081010 b 200000')
     ah=AccountHistory.find(:first)

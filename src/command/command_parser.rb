@@ -17,7 +17,7 @@ class CommandParser
   def execute(command_string)
     args=command_string.split(' ')
     name=args.shift
-    raise ArgumentError.new('unknown command') unless @commands.has_key? name
+    raise ArgumentError.new("unknown command: #{name}") unless @commands.has_key? name
     @commands[name].execute args
   end
   def define_alias(name,alias_for)
