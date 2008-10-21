@@ -35,6 +35,9 @@ describe AccountHistory,'with some histories' do
       [10,4,@bank,1500]
     ]
   end
+  it 'should have endpoint column as Endpoint' do
+    AccountHistory.newest_history(@bank,Date.new(2008,10,1)).endpoint.should be == @bank
+  end
   it 'should error when newest_history called with non Endpoint object as 1st argument' do
     lambda{AccountHistory.newest_history('bank',Date.new(2008,10,3))}.should raise_error(ArgumentError)
     lambda{AccountHistory.newest_history(nil,Date.new(2008,10,3))}.should raise_error(ArgumentError)

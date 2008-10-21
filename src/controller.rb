@@ -14,9 +14,10 @@ class Controller
 
     # define commands
     @parser.define_command('transaction',[[:date,Date], [:src,Endpoint], [:dest,Endpoint], [:amount,Numeric]]) do
-      tr=Transaction.new(:date=>@date, :src=>@src, :dest=>@dest, :amount=>@amount)
-      tr.save
-      tr.id
+      Transaction.new(:date=>@date, :src=>@src, :dest=>@dest, :amount=>@amount).save
+    end
+    @parser.define_command('account',[[:date,Date], [:endpoint,Endpoint], [:amount,Numeric]]) do
+      AccountHistory.new(:date=>@date, :endpoint=>@endpoint, :amount=>@amount).save
     end
   end
   def execute command
