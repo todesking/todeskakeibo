@@ -4,6 +4,9 @@ describe ArgumentParser,'when construct' do
   it 'should raise error when initialize with wrong arguments' do
     lambda{ArgumentParser.new}.should raise_error(ArgumentError)
   end
+  it 'should error when duplicated argument name' do
+    lambda{ArgumentParser.new(CommandContext.new,[[:hoge,String],[:hage,Numeric],[:hoge,Date]])}.should raise_error(ArgumentError)
+  end
 end
 describe ArgumentParser,'when no argument' do
   before(:each) do

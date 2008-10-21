@@ -1,5 +1,8 @@
 class ArgumentParser
   def initialize(context,defs)
+    var_names={}
+    defs.each{|d|var_names[d[0]]=true}
+    raise ArgumentError.new('duplicated variable name') if defs.length != var_names.length
     @context=context
     @defs=defs
   end
