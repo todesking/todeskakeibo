@@ -23,13 +23,26 @@ describe ArgumentParser,'when some arguments' do
     @context=CommandContext.new
     @ap=ArgumentParser.new(@context,[ [:arg1,String], [:arg2,Numeric], [:arg3,Date] ])
   end
-  it 'should parse string argument' do
-    @ap.parse_argument('this is string',String).should be == 'this is string'
-  end
   it 'should error when parse with unsupported type' do
     lambda{@ap.parse_argument('hage',Object)}.should raise_error(ArgumentError)
   end
+  it 'should parse string argument' do
+    @ap.parse_argument('this is string',String).should be == 'this is string'
+  end
   it 'should parse numeric argument' do
     @ap.parse_argument('100',Numeric).should be == 100
+  end
+  it 'should parse date from yyyymmdd string' do
+    @ap.parse_argument('20081020',Date).should be == Date.new(2008,10,20)
+  end
+  it 'should parse date from mmdd/dd based on context' do
+    @context.base_date=Date.new(2008,10,10)
+    @ap.parse_argument('1001',Date).should be == Date.new(2008,10,1)
+    @ap.parse_argument('01',Date).should be == Date.new(2008,10,1)
+    @ap.parse_argument('1',Date).should be == Date.new(2008,10,1)
+  end
+  it 'should error when wrong date format passed' do
+    lambda { @ap.parse_argument('totally-wrong',Date) }.should raise_error(ArgumentError)
+    lambda { @ap.parse_argument('11299000900',Date) }.should raise_error(ArgumentError)
   end
 end
