@@ -1,4 +1,4 @@
-require File.dirname(__FILE__)+'/'+'../src/command_parser.rb'
+require File.dirname(__FILE__)+'/'+'../../src/command/command_parser.rb'
 
 describe CommandParser do
   before(:each) do
