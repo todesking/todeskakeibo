@@ -26,7 +26,7 @@ describe ArgumentParser,'#parse' do
     @context=CommandContext.new
     @context.base_date=Date.new(2008,10,1)
     tp=TypeParser.new
-    tp.define_conversion(Date) {|str|
+    tp.define_mapping(Date) {|str|
       @context.date(str)
     }
     @ap=ArgumentParser.new(tp,[ [:arg1,String], [:arg2,Numeric], [:arg3,Date] ])
