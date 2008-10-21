@@ -20,6 +20,8 @@ class ArgumentParser
     case
     when type == String
       str
+    when type == Numeric
+      str.to_i
     else
       raise ArgumentError.new("unsupported type: "+type.to_s)
     end

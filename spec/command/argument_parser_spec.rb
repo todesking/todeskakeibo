@@ -30,7 +30,6 @@ describe ArgumentParser,'when some arguments' do
     lambda{@ap.parse_argument('hage',Object)}.should raise_error(ArgumentError)
   end
   it 'should parse numeric argument' do
-    pending
     @ap.parse_argument('100',Numeric).should be == 100
   end
 end
