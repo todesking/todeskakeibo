@@ -7,6 +7,9 @@ describe CommandParser do
   it 'should have context property' do
     @parser.context.kind_of?(CommandContext).should be_true
   end
+  it 'should error when define_command called with no block' do
+    lambda{@parser.define_command('hage')}.should raise_error(ArgumentError)
+  end
   it 'should define command with no args by define_command' do
     called=false
     @parser.define_command('the_command') do
