@@ -6,7 +6,7 @@ class CommandParser
     @context=CommandContext.new
     @commands={}
   end
-  def define_command(name,&body)
+  def define_command(name,arg_defs=[],&body)
     @commands[name]=body
   end
   def exec(command_string)
