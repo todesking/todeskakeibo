@@ -18,7 +18,7 @@ describe ArgumentParser,'when no argument' do
   end
 end
 
-describe ArgumentParser,'when some arguments' do
+describe ArgumentParser,'#parse_argument' do
   before(:each) do
     @context=CommandContext.new
     @ap=ArgumentParser.new(@context,[ [:arg1,String], [:arg2,Numeric], [:arg3,Date] ])
@@ -44,5 +44,15 @@ describe ArgumentParser,'when some arguments' do
   it 'should error when wrong date format passed' do
     lambda { @ap.parse_argument('totally-wrong',Date) }.should raise_error(ArgumentError)
     lambda { @ap.parse_argument('11299000900',Date) }.should raise_error(ArgumentError)
+  end
+end
+describe ArgumentParser,'#parse' do
+  before(:each) do
+    @context=CommandContext.new
+    @context.base_date=Date.new(2008,10,1)
+    @ap=ArgumentParser.new(@context,[ [:arg1,String], [:arg2,Numeric], [:arg3,Date] ])
+  end
+  it 'should be parse arguments' do
+    @ap.parse(['hoge','1000','1020']).should be == {:arg1 => 'hoge', :arg2 => 1000, :arg3 => Date.new(2008,10,20)}
   end
 end

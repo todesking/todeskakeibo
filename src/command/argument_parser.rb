@@ -8,10 +8,10 @@ class ArgumentParser
     defs=@defs.clone
     result={}
     while(0 < defs.length)
-      d=@defs.shift
+      d=defs.shift
       name,type=d
       a=args.shift
-      result[name]=a
+      result[name]=parse_argument(a,type)
     end
     raise ArgumentError.new('arguments too long') if 0 < args.length
     result

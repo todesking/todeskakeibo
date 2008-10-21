@@ -1,8 +1,8 @@
 class Command
-  def initialize(context,name,arg_defs,&body)
+  def initialize(name,arg_parser,&body)
     raise ArgumentError('block must be given') if body.nil?
     @name=name
-    @arg_parser=ArgumentParser.new(context,arg_defs)
+    @arg_parser=arg_parser
     @body=body
   end
   def exec args
