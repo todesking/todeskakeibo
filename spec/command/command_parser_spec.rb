@@ -42,4 +42,19 @@ describe CommandParser do
     end
     @parser.exec('command hoge').should be == 'hoge'
   end
+
+  it 'should execute command with multiple arguments' do
+    @parser.define_command('transaction',[[:date,Date],[:from,String],[:to,String],[:amount,Numeric]]) do
+      [@date,@from,@to,@amount]
+    end
+    @parser.exec('transaction 20081011 bank wallet 20000').should be == [Date.new(2008,10,11),'bank','wallet',20000]
+  end
+  
+  it 'should define aliase for command' do
+    @parser.define_command('transaction',[]) do
+      'transaction'
+    end
+    @parser.define_alias('t','transaction')
+    @parser.exec('t').should be == 'transaction'
+  end
 end
