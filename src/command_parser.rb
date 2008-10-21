@@ -4,5 +4,13 @@ class CommandParser
   attr_reader :context
   def initialize
     @context=CommandContext.new
+    @commands={}
+  end
+  def define_command(name,&body)
+    @commands[name]=body
+  end
+  def exec(command_string)
+    name=command_string
+    @commands[name].call
   end
 end
