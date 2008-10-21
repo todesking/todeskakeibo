@@ -21,8 +21,10 @@ describe Controller,'commands' do
     ]
   end
   it 'should define transaction' do
-    @c.execute('transaction 20081001 b wallet 10000')
-    Transaction.find(:first).src.name.should be == 'bank'
-    Transaction.find(:first).amount.should be == 10000
+    id=@c.execute('transaction 20081001 b wallet 10000')
+    tr=Transaction.find(:first)
+    id.should be == tr.id
+    tr.src.name.should be == 'bank'
+    tr.amount.should be == 10000
   end
 end
