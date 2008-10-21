@@ -26,4 +26,11 @@ describe ArgumentParser,'when some arguments' do
   it 'should parse string argument' do
     @ap.parse_argument('this is string',String).should be == 'this is string'
   end
+  it 'should error when parse with unsupported type' do
+    lambda{@ap.parse_argument('hage',Object)}.should raise_error(ArgumentError)
+  end
+  it 'should parse numeric argument' do
+    pending
+    @ap.parse_argument('100',Numeric).should be == 100
+  end
 end

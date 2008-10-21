@@ -21,7 +21,7 @@ class ArgumentParser
     when type == String
       str
     else
-      nil
+      raise ArgumentError.new("unsupported type: "+type.to_s)
     end
   end
 end
