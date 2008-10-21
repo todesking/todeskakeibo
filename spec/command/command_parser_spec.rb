@@ -26,7 +26,6 @@ describe CommandParser do
   end
 
   it 'should define command with no args by define_command' do
-    pending
     called=false
     @parser.define_command('the_command') do
       called=true
@@ -38,14 +37,9 @@ describe CommandParser do
   end
 
   it 'should define command with one string argument by define_command' do
-    pending
     @parser.define_command('command',[[:string_arg,String]]) do
       @string_arg
     end
     @parser.exec('command hoge').should be == 'hoge'
-  end
-
-  it 'should validate command count on exec' do
-    pending 'later'
   end
 end
