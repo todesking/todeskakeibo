@@ -9,6 +9,10 @@ describe CommandParser do
     @parser.context.kind_of?(CommandContext).should be_true
   end
 
+  it 'should error when overwriting existing command' do
+    pending
+  end
+
   it 'should error when define_command called with no block' do
     lambda{@parser.define_command('hage')}.should raise_error(ArgumentError)
   end
@@ -49,12 +53,25 @@ describe CommandParser do
     end
     @parser.exec('transaction 20081011 bank wallet 20000').should be == [Date.new(2008,10,11),'bank','wallet',20000]
   end
-  
-  it 'should define aliase for command' do
+end
+describe CommandParser,'#define_alias' do
+  before(:each) do
+    @parser=CommandParser.new
+  end
+
+  it 'should error when overwriting existing alias' do
+    pending
+  end
+
+  it 'should define alias for command' do
     @parser.define_command('transaction',[]) do
       'transaction'
     end
     @parser.define_alias('t','transaction')
     @parser.exec('t').should be == 'transaction'
+  end
+
+  it 'should error when defining alias for undefined command' do
+    pending
   end
 end
