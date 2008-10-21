@@ -1,6 +1,5 @@
 describe TypeParser,'by default' do
   before(:each) do
-    @context=CommandContext.new
     @tp=TypeParser.new
   end
   it 'should error when parse with unsupported type' do

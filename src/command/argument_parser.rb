@@ -1,6 +1,5 @@
 class ArgumentParser
   def initialize(convertion,defs)
-    raise ArgumentError.new('fuga') if convertion.kind_of? CommandContext
     var_names={}
     defs.each{|d|var_names[d[0]]=true}
     raise ArgumentError.new('duplicated variable name') if defs.length != var_names.length

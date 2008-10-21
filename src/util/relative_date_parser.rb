@@ -1,4 +1,4 @@
-class CommandContext
+class RelativeDateParser
   attr_accessor :base_date
   def date str
     case str.strip

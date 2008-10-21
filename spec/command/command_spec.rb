@@ -2,13 +2,12 @@ require File.dirname(__FILE__)+'/'+'../../src/command/command.rb'
 
 describe Command,'when initialize' do
   it 'should error when no block given' do
-    lambda{Command.new('hoge',ArgumentParser.new(CommandContext.new,[]))}.should raise_error(ArgumentError)
+    lambda{Command.new('hoge',ArgumentParser.new([]))}.should raise_error(ArgumentError)
   end
 end
 
 describe Command,'with no arguments' do
   before(:each) do
-    @context=CommandContext.new
     @command=Command.new('command',ArgumentParser.new(TypeParser.new,[])) do
       'command return value'
     end
@@ -23,7 +22,6 @@ end
 
 describe Command,'with some arguments' do
   before(:each) do
-    @context=CommandContext.new
   end
   it 'should execute the command' do
     this=self

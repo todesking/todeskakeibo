@@ -1,5 +1,3 @@
-require File.dirname(__FILE__)+'/'+'command_context.rb'
-
 class CommandParser
   def initialize
     @commands={}
