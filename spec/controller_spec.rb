@@ -1,6 +1,26 @@
 require File.dirname(__FILE__)+'/'+'../src/controller.rb'
 require File.dirname(__FILE__)+'/'+'model/spec_helper.rb'
 
+describe Controller,'#execute' do
+  before(:each) do
+    ModelSpecHelper.setup_database
+    @c=Controller.new
+  end
+  it 'should ignore empty string' do
+    @c.execute('')
+  end
+  it 'should execute multiple commands' do
+    @c.execute(<<-'EOS'.split("\n"))
+      endpoint hoge
+      endpoint hage hoge
+
+      transaction 20081001 hoge hage 10000
+    EOS
+    Endpoint.find(:all).length.should be == 2
+    Transaction.find(:first).amount.should be == 10000
+  end
+end
+
 describe Controller,'commands' do
   before(:each) do
     @c=Controller.new
@@ -57,4 +77,6 @@ describe Controller,'commands' do
     cr=Endpoint.find_by_name('other')
     cr.parent.should be_nil
   end
+
+
 end

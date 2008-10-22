@@ -37,6 +37,15 @@ class Controller
     @parser.define_command(name,defs,&block)
   end
   def execute command
-    @parser.execute command
+    case command
+    when String
+      return nil if command.strip.empty?
+      @parser.execute command.strip
+    when Array
+      command.each{|l|
+        next if l.strip.empty?
+        @parser.execute l.strip
+      }
+    end
   end
 end
