@@ -49,5 +49,12 @@ describe Controller,'commands' do
     @c.execute('endpoint credit stash')
     cr=Endpoint.find_by_name('credit')
     cr.should_not be_nil
+    cr.parent.should be == @stash
+  end
+
+  it 'should define endpoint with no parent' do
+    @c.execute('endpoint other')
+    cr=Endpoint.find_by_name('other')
+    cr.parent.should be_nil
   end
 end

@@ -9,6 +9,9 @@ describe ArgumentParser,'when construct' do
     ArgumentParser.new(TypeParser.new,[[:hoge,String],[:hage,Numeric],[:moge,Date]]) #no error
     lambda{ArgumentParser.new(TypeParser.new,[[:hoge,String],[:hage,Numeric],[:hoge,Date]])}.should raise_error(ArgumentError)
   end
+  it 'should error when argument with non default value is trailing' do
+    lambda{ArgumentParser.new(@tp,[ [:arg1,Numeric,{:default=>100}], [:arg2,String] ])}.should raise_error(ArgumentError)
+  end
 end
 describe ArgumentParser,'when no argument' do
   before(:each) do
@@ -34,5 +37,23 @@ describe ArgumentParser,'#parse' do
     lambda{@ap.parse(['hoge'])}.should raise_error(ArgumentError)
     lambda{@ap.parse([])}.should raise_error(ArgumentError)
     lambda{@ap.parse(['hoge','100','1220','fuba'])}.should raise_error(ArgumentError)
+  end
+end
+
+describe ArgumentParser,'with variable argument definition' do
+  before(:all) do
+    @tp=TypeParser.new
+  end
+
+  it 'should parse default argument' do
+    ap=ArgumentParser.new(@tp,[ [:arg1,Numeric], [:arg2,String,{:default=>'default'}] ])
+    ap.parse(['10','20']).should be == {:arg1 => 10, :arg2 => '20'}
+    ap.parse(['10']).should be == {:arg1 => 10, :arg2 => 'default'}
+  end
+  it 'should parse multiple default argument' do
+    ap=ArgumentParser.new(@tp,[ [:arg1,Numeric,{:default=>100}], [:arg2,String,{:default=>'default'}] ])
+    ap.parse(['10','20']).should be == {:arg1 => 10, :arg2 => '20'}
+    ap.parse(['10']).should be == {:arg1 => 10, :arg2 => 'default'}
+    ap.parse([]).should be == {:arg1=>100,:arg2=>'default'}
   end
 end

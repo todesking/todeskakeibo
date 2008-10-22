@@ -29,7 +29,7 @@ class Controller
     define_command('base_date',[[:date,Date]]) do
       date_parser.base_date=@date
     end
-    define_command('endpoint',[[:ep_name,String],[:parent,Endpoint]]) do
+    define_command('endpoint',[[:ep_name,String],[:parent,Endpoint,{:default=>nil}]]) do
       Endpoint.new(:name=>@ep_name,:parent=>@parent).save
     end
   end
