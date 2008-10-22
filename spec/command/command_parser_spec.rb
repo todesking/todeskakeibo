@@ -1,5 +1,16 @@
 require File.dirname(__FILE__)+'/'+'../../src/command/command_parser.rb'
 
+describe CommandParser,'#command' do
+  before(:each) do
+    @parser=CommandParser.new
+    @parser.define_command('command_1',[]){}
+  end
+  it 'should return Command object from command name' do
+    @parser.command('command_1').should_not be_nil
+    @parser.command('undefined').should be_nil
+  end
+end
+
 describe CommandParser,'#define_command and #execute' do
   before(:each) do
     @parser=CommandParser.new
@@ -64,10 +75,10 @@ describe CommandParser,'#define_alias' do
 
   it 'should define alias for command' do
     @parser.define_command('transaction',[]) do
-      'transaction'
     end
     @parser.define_alias('t','transaction')
-    @parser.execute('t').should be == 'transaction'
+    @parser.command('t').should be == @parser.command('transaction')
+    @parser.command('t').name.should be == 'transaction'
   end
 
   it 'should error when defining alias for undefined command' do

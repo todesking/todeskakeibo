@@ -1,4 +1,5 @@
 class Command
+  attr_reader :name
   def initialize(name,arg_parser,&body)
     raise ArgumentError.new('block must be given') if body.nil?
     @name=name

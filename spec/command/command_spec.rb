@@ -31,4 +31,8 @@ describe Command,'with some arguments' do
     }
     cmd.execute(['hage','100','20081011']).should be == 'executed'
   end
+  it 'should have name' do
+    cmd=Command.new('cmd',ArgumentParser.new(TypeParser.new,[])){}
+    cmd.name.should be == 'cmd'
+  end
 end

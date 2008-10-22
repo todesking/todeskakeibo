@@ -25,4 +25,7 @@ class CommandParser
     raise ArgumentError.new("command #{alias_for} was undefined") if !@commands.has_key? alias_for
     @commands[name]=@commands[alias_for]
   end
+  def command(name)
+    return @commands[name]
+  end
 end
