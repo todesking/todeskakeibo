@@ -36,4 +36,89 @@ module DataStructureFormatter
       end
     end
   end
+  module Table
+    class Accessor
+      def row_enumerator &block
+        @row_enumerator=block
+      end
+      def column_enumerator &block
+        @column_enumerator=block
+      end
+      def rows data
+        @row_enumerator.call data
+      end
+      def columns row
+        @column_enumerator.call row
+      end
+      def convert_to_table data
+        table=[]
+        rows(data).each{|row|
+          table << columns(row).to_a
+        }
+        table
+      end
+    end
+    class Formatter
+      def initialize accessor,colnames
+        @accessor=accessor
+        @colnames=colnames
+        @justify={}
+      end
+      def format data
+        table=@accessor.convert_to_table(data)
+        widths=column_widths(table)
+        result=[]
+        result << render_sepalate_line(widths)
+        result << render_header(widths)
+        result << render_sepalate_line(widths)
+        table.each{|row| result << render_row(widths,row)}
+        result << render_sepalate_line(widths)
+        return result.join("\n")+"\n"
+      end
+      def column_justify(col,value)
+        @justify[col]=value
+      end
+      def render_sepalate_line widths
+        '+'+widths.map{|w| '-'*(w+2)}.join('+')+'+'
+      end
+      def render_header widths
+        '|'+(0...widths.length).map{|i|
+          " #{@colnames[i].ljust(widths[i])} "
+        }.join('|')+'|'
+      end
+      def render_row widths,row
+        '|'+(0...widths.length).map{|i|
+          value=row[i]
+          width=widths[i]
+          justify=
+            @justify[i]||
+            case
+            when value.kind_of?(Numeric)
+              :right
+            else
+              :left
+            end
+          justified=case justify
+                    when :left
+                      value.to_s.ljust(width)
+                    when :right
+                      value.to_s.rjust(width)
+                    else
+                      raise 'ASSERTION ERROR'
+                    end
+          " #{justified} "
+        }.join('|')+'|'
+      end
+      def column_widths table
+        widths=@colnames.map{|cn|cn.length}
+        table.each{|row|
+          w=row.map{|col| col.to_s.length}
+          (0...row.length).each{|i|
+            widths[i]=w[i] if widths[i] < w[i]
+          }
+        }
+        widths
+      end
+    end
+  end
 end
