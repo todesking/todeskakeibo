@@ -1,4 +1,4 @@
-require File.dirname(__FILE__)+'/'+'../../src/command/argument_parser.rb'
+require File.dirname(__FILE__)+'/'+'../../src/command/argument_definition.rb'
 require File.dirname(__FILE__)+'/'+'../../src/command/type_parser.rb'
 
 describe ArgumentDefinition,'when construct' do

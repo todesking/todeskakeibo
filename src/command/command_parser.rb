@@ -1,5 +1,5 @@
 require File.dirname(__FILE__)+'/'+'command.rb'
-require File.dirname(__FILE__)+'/'+'argument_parser.rb'
+require File.dirname(__FILE__)+'/'+'argument_definition.rb'
 require File.dirname(__FILE__)+'/'+'type_parser.rb'
 
 class CommandParser
