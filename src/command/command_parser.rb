@@ -31,4 +31,10 @@ class CommandParser
   def commands
     return @commands.clone
   end
+  def non_alias_commands
+    return @commands.reject{|k,v| v.name != k}
+  end
+  def aliases_for command
+    return @commands.reject{|k,v| v!=command || k==v.name}
+  end
 end

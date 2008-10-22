@@ -18,6 +18,18 @@ describe CommandParser do
       'c3' => @cp.command('command3')
     }
   end
+  it 'should know non-alias commands' do
+    @cp.non_alias_commands.should be == {
+      'command1' => @cp.command('command1'),
+      'command2' => @cp.command('command2'),
+      'command3' => @cp.command('command3')
+    }
+  end
+  it 'should know command\'s aliases' do
+    @cp.aliases_for(@cp.command('command1')).should be == {
+      'c1' => @cp.command('command1')
+    }
+  end
 end
 
 describe CommandParser,'#command' do
