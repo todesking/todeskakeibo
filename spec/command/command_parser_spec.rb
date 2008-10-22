@@ -1,5 +1,25 @@
 require File.dirname(__FILE__)+'/'+'../../src/command/command_parser.rb'
 
+describe CommandParser do
+  before(:each) do
+    @cp=CommandParser.new
+    @cp.define_command('command1',[]){}
+    @cp.define_command('command2',[]){}
+    @cp.define_command('command3',[]){}
+    @cp.define_alias('c1','command1')
+    @cp.define_alias('c3','command3')
+  end
+  it 'should know all commands' do
+    @cp.commands.should be == {
+      'command1' => @cp.command('command1'),
+      'command2' => @cp.command('command2'),
+      'command3' => @cp.command('command3'),
+      'c1' => @cp.command('command1'),
+      'c3' => @cp.command('command3')
+    }
+  end
+end
+
 describe CommandParser,'#command' do
   before(:each) do
     @parser=CommandParser.new

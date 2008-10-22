@@ -28,4 +28,7 @@ class CommandParser
   def command(name)
     return @commands[name]
   end
+  def commands
+    return @commands.clone
+  end
 end
