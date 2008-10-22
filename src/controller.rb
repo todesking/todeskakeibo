@@ -32,6 +32,9 @@ class Controller
     define_command('endpoint',[[:ep_name,String],[:parent,Endpoint,{:default=>nil}]]) do
       Endpoint.new(:name=>@ep_name,:parent=>@parent).save
     end
+    define_command('endpoint_alias',[[:alias_name,String],[:alias_for,Endpoint]]) do
+      EndpointAlias.new(:name=>@alias_name,:endpoint=>@alias_for).save
+    end
   end
   def define_command(name,defs,&block)
     @parser.define_command(name,defs,&block)

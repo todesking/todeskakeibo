@@ -78,5 +78,9 @@ describe Controller,'commands' do
     cr.parent.should be_nil
   end
 
-
+  it 'should define endpoint alias' do
+    EndpointAlias.lookup('f').should be_nil
+    @c.execute('endpoint_alias f food')
+    EndpointAlias.lookup('f').should be == @food
+  end
 end
