@@ -14,7 +14,7 @@ controller=Controller.new
 
 continue=true
 
-controller.define_command('exit',[]) { continue=false }
+controller.define_command('exit',[]) { continue=false;'bye.' }
 controller.define_command('initialize_database',[]) {
   ModelHelper.create_tables
   'done.'
@@ -30,4 +30,3 @@ while(continue)
     puts 'ERRORR: '+e
   end
 end
-puts 'bye.'
