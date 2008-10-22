@@ -25,6 +25,20 @@ describe ArgumentParser,'when no argument' do
   end
 end
 
+describe ArgumentParser,'#to_str' do
+  def new_ap defs
+    ArgumentParser.new(TypeParser.new,defs)
+  end
+
+  it 'should return human readable argument definition' do
+    new_ap([]).to_str.should be == ''
+    new_ap([ [:arg1,String] ]).to_str.should be == 'arg1:String'
+    new_ap([ [:arg1,String], [:arg2,Date] ]).to_str.should be == 'arg1:String arg2:Date'
+    new_ap([ [:arg1,String], [:arg2,Date,{:default=>nil}] ]).to_str.should be == 'arg1:String [arg2:Date]'
+    new_ap([ [:arg1,String], [:arg2,Date,{:default=>nil}], [:arg3,Date,{:default=>nil}] ]).to_str.should be == 'arg1:String [arg2:Date] [arg3:Date]'
+  end
+end
+
 describe ArgumentParser,'#parse' do
   before(:each) do
     tp=TypeParser.new

@@ -31,4 +31,11 @@ class ArgumentParser
     raise ArgumentError.new('arguments too long') if 0 < args.length
     result
   end
+  def to_str
+    @defs.map{|d|
+      arg="#{d[0].to_s}:#{d[1].to_s}"
+      arg="[#{arg}]" if (d[2]||{}).has_key? :default
+      arg
+    }.join(' ')
+  end
 end
