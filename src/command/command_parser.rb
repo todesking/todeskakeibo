@@ -12,7 +12,7 @@ class CommandParser
     raise ArgumentError.new('block not given') if body.nil?
     raise ArgumentError.new('duplicated name') if @commands.has_key? name
 
-    @commands[name]=Command.new(name,ArgumentParser.new(@type_parser,arg_defs),&body)
+    @commands[name]=Command.new(name,ArgumentDefinition.new(@type_parser,arg_defs),&body)
   end
   def execute(command_string)
     args=command_string.split(' ')

@@ -1,4 +1,4 @@
-class ArgumentParser
+class ArgumentDefinition
   def initialize(convertion,defs)
     var_names={}
     default_appeared=false
