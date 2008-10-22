@@ -18,6 +18,9 @@ describe Command,'with no arguments' do
   it 'should success execute with no argument' do
     @command.execute([]).should be == 'command return value'
   end
+  it 'should have human readable string' do
+    @command.to_str.should be == 'command'
+  end
 end
 
 describe Command,'with some arguments' do
@@ -38,5 +41,9 @@ describe Command,'with some arguments' do
   it 'should have argument definitions' do
     cmd=Command.new('cmd',ArgumentDefinition.new(TypeParser.new,[])){}
     cmd.arg_defs.should_not be_nil
+  end
+  it 'should have human readable string' do
+    cmd=Command.new('cmd',ArgumentDefinition.new(TypeParser.new,[ [:arg1,String], [:arg2,Numeric], [:arg3,Date] ])) {}
+    cmd.to_str.should be == 'cmd arg1:String arg2:Numeric arg3:Date'
   end
 end

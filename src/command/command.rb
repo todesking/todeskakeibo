@@ -15,4 +15,7 @@ class Command
     }
     execution_context.instance_eval(&@body)
   end
+  def to_str
+    [name,arg_defs.to_str].join(' ').strip
+  end
 end
