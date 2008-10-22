@@ -44,4 +44,10 @@ describe Controller,'commands' do
     ah.date.should be == Date.new(2008,10,10)
     ah.amount.should be == 200000
   end
+
+  it 'should define endpoint' do
+    @c.execute('endpoint credit stash')
+    cr=Endpoint.find_by_name('credit')
+    cr.should_not be_nil
+  end
 end

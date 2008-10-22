@@ -1,5 +1,6 @@
 require File.dirname(__FILE__)+'/'+'command/command_parser.rb'
 require File.dirname(__FILE__)+'/'+'model/transaction.rb'
+require File.dirname(__FILE__)+'/'+'model/endpoint_alias.rb'
 require File.dirname(__FILE__)+'/'+'util/relative_date_parser.rb'
 
 
@@ -18,16 +19,22 @@ class Controller
     }
 
     # define commands
-    @parser.define_command('transaction',[[:date,Date], [:src,Endpoint], [:dest,Endpoint], [:amount,Numeric]]) do
+    define_command('transaction',[[:date,Date], [:src,Endpoint], [:dest,Endpoint], [:amount,Numeric]]) do
       Transaction.new(:date=>@date, :src=>@src, :dest=>@dest, :amount=>@amount).save
     end
-    @parser.define_command('account',[[:date,Date], [:endpoint,Endpoint], [:amount,Numeric]]) do
+    define_command('account',[[:date,Date], [:endpoint,Endpoint], [:amount,Numeric]]) do
       AccountHistory.new(:date=>@date, :endpoint=>@endpoint, :amount=>@amount).save
     end
     date_parser=@date_parser
-    @parser.define_command('base_date',[[:date,Date]]) do
+    define_command('base_date',[[:date,Date]]) do
       date_parser.base_date=@date
     end
+    define_command('endpoint',[[:ep_name,String],[:parent,Endpoint]]) do
+      Endpoint.new(:name=>@ep_name,:parent=>@parent).save
+    end
+  end
+  def define_command(name,defs,&block)
+    @parser.define_command(name,defs,&block)
   end
   def execute command
     @parser.execute command
