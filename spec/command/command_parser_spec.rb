@@ -116,4 +116,11 @@ describe CommandParser,'#define_alias' do
   it 'should error when defining alias for undefined command' do
     lambda{@parser.define_alias('f','foo')}.should raise_error(ArgumentError)
   end
+
+  it 'should define multiple alias names at once' do
+    @parser.define_command('transaction',[]) {}
+    @parser.define_alias(['t','tr'],'transaction')
+    @parser.command('t').should be == @parser.command('transaction')
+    @parser.command('tr').should be == @parser.command('transaction')
+  end
 end

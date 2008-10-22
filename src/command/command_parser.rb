@@ -21,8 +21,11 @@ class CommandParser
     @commands[name].execute args
   end
   def define_alias(name,alias_for)
+    return name.each{|n| define_alias(n,alias_for)} if name.instance_of? Array
+
     raise ArgumentError.new("name #{name} was already exists") if @commands.has_key? name
     raise ArgumentError.new("command #{alias_for} was undefined") if !@commands.has_key? alias_for
+
     @commands[name]=@commands[alias_for]
   end
   def command(name)
