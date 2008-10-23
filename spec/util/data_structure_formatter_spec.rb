@@ -94,5 +94,4 @@ describe DataStructureFormatter::Table do
 +----+----------+--------+
 EOS
   end
-
 end

@@ -11,10 +11,8 @@ class CommandParser
   def define_command(name,arg_defs=[],&body)
     if name.instance_of? Array
       raise ArgumentError.new('name is empty') if name.empty?
-      primary_name=name[0]
-      aliases=name[1..-1]
-      define_command(primary_name,arg_defs,&body)
-      aliases.each{|a| define_alias(a,primary_name)}
+      define_command(name[0],arg_defs,&body)
+      define_alias(name[1..-1],name[0])
       return
     end
     raise ArgumentError.new('block not given') if body.nil?
@@ -31,7 +29,7 @@ class CommandParser
   def define_alias(name,alias_for)
     return name.each{|n| define_alias(n,alias_for)} if name.instance_of? Array
 
-    raise ArgumentError.new("name #{name} was already exists") if @commands.has_key? name
+    raise ArgumentError.new("command #{name} was already exists") if @commands.has_key? name
     raise ArgumentError.new("command #{alias_for} was undefined") if !@commands.has_key? alias_for
 
     @commands[name]=@commands[alias_for]

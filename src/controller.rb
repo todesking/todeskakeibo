@@ -2,6 +2,7 @@ require File.dirname(__FILE__)+'/'+'command/command_parser.rb'
 require File.dirname(__FILE__)+'/'+'model/transaction.rb'
 require File.dirname(__FILE__)+'/'+'model/endpoint_alias.rb'
 require File.dirname(__FILE__)+'/'+'util/relative_date_parser.rb'
+require File.dirname(__FILE__)+'/'+'util/data_structure_formatter.rb'
 
 
 class Controller
@@ -21,66 +22,67 @@ class Controller
     }
 
     # define commands
-    define_command('transaction',[[:date,Date], [:src,Endpoint], [:dest,Endpoint], [:amount,Numeric]]) do
+    define_command(['transaction','t'],[[:date,Date], [:src,Endpoint], [:dest,Endpoint], [:amount,Numeric]]) do
       Transaction.new(:date=>@date, :src=>@src, :dest=>@dest, :amount=>@amount).save
     end
-    define_alias(['t'],'transaction')
 
-    define_command('account',[[:date,Date], [:endpoint,Endpoint], [:amount,Numeric]]) do
+    define_command(['account','a'],[[:date,Date], [:endpoint,Endpoint], [:amount,Numeric]]) do
       AccountHistory.new(:date=>@date, :endpoint=>@endpoint, :amount=>@amount).save
     end
-    define_alias(['a'],'account')
 
-    define_command('base_date',[[:date,Date]]) do
+    define_command(['base_date','bd'],[[:date,Date]]) do
       date_parser.base_date=@date
     end
-    define_alias('bd','base_date')
 
-    define_command('endpoint',[[:ep_name,String],[:parent,Endpoint,{:default=>nil}]]) do
+    define_command(['endpoint','ep'],[[:ep_name,String],[:parent,Endpoint,{:default=>nil}]]) do
       Endpoint.new(:name=>@ep_name,:parent=>@parent).save
     end
-    define_alias('ep','endpoint')
     
-    define_command('endpoint_alias',[[:alias_name,String],[:alias_for,Endpoint]]) do
+    define_command(['endpoint_alias','epa'],[[:alias_name,String],[:alias_for,Endpoint]]) do
       EndpointAlias.new(:name=>@alias_name,:endpoint=>@alias_for).save
     end
-    define_alias('epa','endpoint_alias')
 
     # define commands(untestable, most of is 'show' command)
-    define_command('help',[[:sub_command,String,{:default=>nil}]]) do
+    define_command(['help','h','?','he'],[[:sub_command,String,{:default=>nil}]]) do
       default_str= <<EOS
 help : show this message
 help commands : show commands with aliases
+help <command-name> : show command usage
 EOS
       case @sub_command
       when 'commands'
         lines=[]
         parser.non_alias_commands.each{|k,v|
           lines << "#{v.to_str}"
-          lines << "  aliases: #{parser.aliases_for(v).map{|k,v|k}.join(' ')}" unless parser.aliases_for(v).empty?
+          lines << "aliases: #{parser.aliases_for(v).map{|k,v|k}.join(' ')}" unless parser.aliases_for(v).empty?
         }
         lines.join("\n")
       when nil
         default_str
       else
-        default_str
+        cmd=parser.command(@sub_command)
+        if cmd.nil?
+          "undefined command: #{@sub_command}"
+        else
+          lines=[]
+          lines << "#{cmd.to_str}"
+          lines << "aliases: #{parser.aliases_for(cmd).map{|k,v|k}.join(' ')}" unless parser.aliases_for(cmd).empty?
+          lines.join("\n")
+        end
       end
     end
-    define_alias(['h','?','he'],'help')
 
-    define_command('endpoints',[]) do
-      def epp(res,level,ep)
-        res << '  '*level + ep.name
-        ep.children.each{|c| epp(res,level+1,c)}
-      end
-      lines=['Endpoints:']
-      ep_root=Endpoint.find(:all,:conditions=>{:parent=>nil})
-      ep_root.each{|e|
-        epp(lines,1,e)
+    define_command(['endpoints','eps'],[]) do
+      ac=DataStructureFormatter::Tree::Accessor.new
+      ac.child_enumerator {|target| target.children}
+      ac.value_accessor {|target| target.name}
+      fmt=DataStructureFormatter::Tree::Formatter.new ac
+      msg=''
+      Endpoint.find(:all,:conditions=>{:parent=>nil}).each{|ep|
+        msg << fmt.format(ep)
       }
-      lines.join("\n")
+      msg
     end
-    define_alias('eps','endpoints')
   end
   def define_command(name,defs,&block)
     @parser.define_command(name,defs,&block)
