@@ -6,15 +6,21 @@ require File.dirname(__FILE__)+'/'+'util/data_structure_formatter.rb'
 
 
 class Controller
+  def type_parser
+    @parser.type_parser
+  end
   def initialize
     @parser=CommandParser.new
     @date_parser=RelativeDateParser.new
     parser=@parser
     date_parser=@date_parser
+    date_parser.base_date=Date.today
 
     # define argument types
     @parser.type_parser.define_mapping(Endpoint) {|ep_name|
-      EndpointAlias.lookup(ep_name)
+      ep=EndpointAlias.lookup(ep_name)
+      raise ArgumentError.new("unknown endpoint name: #{ep_name}") if ep.nil?
+      ep
     }
 
     @parser.type_parser.define_mapping(Date) {|date|
@@ -30,8 +36,12 @@ class Controller
       AccountHistory.new(:date=>@date, :endpoint=>@endpoint, :amount=>@amount).save
     end
 
-    define_command(['base_date','bd'],[[:date,Date]]) do
-      date_parser.base_date=@date
+    define_command(['base_date','bd'],[[:date,Date,{:default=>nil}]]) do
+      if @date.nil?
+        "base date: #{date_parser.base_date.to_s}"
+      else
+        date_parser.base_date=@date
+      end
     end
 
     define_command(['endpoint','ep'],[[:ep_name,String],[:parent,Endpoint,{:default=>nil}]]) do
@@ -83,8 +93,18 @@ EOS
       }
       msg
     end
+
+    define_command(['transactions','trs']) do
+      ac=DataStructureFormatter::Table::Accessor.new
+      ac.row_enumerator {|data| data}
+      ac.column_enumerator {|row|
+        [row.id,row.date.to_s,row.src.name,row.dest.name,row.amount,row.description]
+      }
+      fmt=DataStructureFormatter::Table::Formatter.new ac,['id','date','src','dest','amount','descr.']
+      fmt.format(Transaction.find(:all))
+    end
   end
-  def define_command(name,defs,&block)
+  def define_command(name,defs=[],&block)
     @parser.define_command(name,defs,&block)
   end
   def define_alias(aliases,command)

@@ -21,6 +21,38 @@ describe Controller,'#execute' do
   end
 end
 
+describe Controller,'with TypeParser' do
+  before(:all) do
+    @c=Controller.new
+    ModelSpecHelper.setup_database
+    ModelSpecHelper.create_nested_endpoints [
+      :stash,
+      [:wallet,:stash],
+      [:bank,:stash]
+    ]
+    ModelSpecHelper.import_endpoints self
+    ModelSpecHelper.create_endpoint_aliases [
+      [:w,@wallet]
+    ]
+  end
+
+  it 'should have type_parser' do
+    @c.type_parser.should_not be_nil
+  end
+
+  it 'should parse Endpoint by real name' do
+    @c.type_parser.parse('wallet',Endpoint).should == @wallet
+  end
+
+  it 'should parse Endpoint by alias' do
+    @c.type_parser.parse('w',Endpoint).should == @wallet
+  end
+
+  it 'should error when parsing Endpoint with unknown name' do
+    lambda { @c.type_parser.parse('undef',Endpoint) }.should raise_error(ArgumentError)
+  end
+end
+
 describe Controller,'commands' do
   before(:each) do
     @c=Controller.new
