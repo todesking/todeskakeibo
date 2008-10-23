@@ -70,4 +70,9 @@ describe ArgumentDefinition,'with variable argument definition' do
     ap.parse(['10']).should be == {:arg1 => 10, :arg2 => 'default'}
     ap.parse([]).should be == {:arg1=>100,:arg2=>'default'}
   end
+  it 'should not re-parse default value' do
+    ap=ArgumentDefinition.new(@tp,[ [:arg,Numeric,{:default=>nil}] ]) { @arg }
+    ap.parse(['20']).should ==  {:arg => 20} # normal
+    ap.parse([]).should == {:arg => nil}
+  end
 end

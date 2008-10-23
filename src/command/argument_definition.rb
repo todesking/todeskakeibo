@@ -21,12 +21,11 @@ class ArgumentDefinition
       name,type,opts=d
       opts||={}
       if 0 < args.length
-        a=args.shift
+        result[name]=@convertion.parse(args.shift,type)
       else
         raise ArgumentError.new('arguments too short') unless opts.has_key? :default
-        a=opts[:default]
+        result[name]=opts[:default]
       end
-      result[name]=@convertion.parse(a,type)
     end
     raise ArgumentError.new('arguments too long') if 0 < args.length
     result
