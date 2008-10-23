@@ -2,7 +2,16 @@ require File.dirname(__FILE__)+'/'+'../../src/command/command.rb'
 
 describe Command,'when initialize' do
   it 'should error when no block given' do
+    Command.new('hoge',ArgumentDefinition.new(TypeParser.new,[])){} #success
     lambda{Command.new('hoge',ArgumentDefinition.new([]))}.should raise_error(ArgumentError)
+  end
+end
+
+describe Command do
+  it 'should have #sub_container method' do
+    c=Command.new('cmd',ArgumentDefinition.new(TypeParser.new,[])){}
+    c.sub_container.should be c
+    lambda{c.sub_container('hage')}.should raise_error(ArgumentError)
   end
 end
 
@@ -88,12 +97,30 @@ describe CommandContainer do
     c=CommandContainer.new('svn')
     c.define_sub_container('up').define_command('cmd',Command.new('cmd',ArgumentDefinition.new(TypeParser.new,[])){'command'})
     c.execute(['up','cmd']).should == 'command'
+    c.sub_container('up','cmd').name.should == 'cmd'
+    c.sub_container('up').sub_container('cmd').name.should == 'cmd'
   end
 
   it '#define_command should return the Command object' do
     c=CommandContainer.new('svn')
     cmd=Command.new('up',ArgumentDefinition.new(TypeParser.new,[])){}
     c.define_command('up',cmd).should be cmd
+  end
+
+  it '#execute should error when unknown command' do
+    lambda{CommandContainer.new('hage').execute(['hoge','fuga'])}.should raise_error(ArgumentError)
+  end
+
+  it '#execute should error when subcommand is empty' do
+    cc=CommandContainer.new('hoge')
+    cc.define_sub_container('hage')
+    lambda{cc.execute([])}.should raise_error(ArgumentError)
+  end
+
+  it '#define_sub_container should return deepest container' do
+    cc=CommandContainer.new('hoge')
+    c3=cc.define_sub_container('1','2','3')
+    cc.sub_container('1').sub_container('2').sub_container('3').should be c3
   end
 
   it 'should store sub command' do

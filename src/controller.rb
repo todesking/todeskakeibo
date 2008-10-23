@@ -28,6 +28,10 @@ class Controller
     }
 
     # define commands
+    @parser.define_hierarchical_command([ ['delete','del'],['transaction','tr'] ],[ [:id,Numeric] ]) do
+      Transaction.find_by_id(@id).destroy
+    end
+
     define_command(['transaction','t'],[[:date,Date], [:src,Endpoint], [:dest,Endpoint], [:amount,Numeric]]) do
       Transaction.new(:date=>@date, :src=>@src, :dest=>@dest, :amount=>@amount).save
     end

@@ -22,9 +22,11 @@ class CommandParser
   end
   def define_hierarchical_command(names,arg_defs=[],&body)
     raise ArgumentError.new('names.length < 2') unless 1 < names.length
-    @commands[names.first] ||= CommandContainer.new(names.first)
-    package=@commands[names.first]
-    package=package.define_sub_container(names[1..-2])
+    top_name=names.first
+    top_name=[top_name] unless top_name.instance_of? Array
+    package=@commands[top_name.first]||CommandContainer.new(top_name.first)
+    top_name.each{|tn| @commands[tn]=package}
+    package=package.define_sub_container(*names[1..-2])
     package.define_command(names.last,Command.new(names.last,ArgumentDefinition.new(@type_parser,arg_defs),&body))
   end
   def execute(command_string)

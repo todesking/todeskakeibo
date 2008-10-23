@@ -115,4 +115,13 @@ describe Controller,'command' do
     @c.execute('endpoint_alias f food')
     EndpointAlias.lookup('f').should be == @food
   end
+
+  it 'delete transaction should delete the transaction' do
+    tr=Transaction.new(:date=>Date.new(2008,10,23),:src=>@wallet,:dest=>@food,:amount=>1000)
+    tr.save
+    tr.id.should == 1
+    Transaction.find_by_id(1).should_not be_nil
+    @c.execute('delete transaction 1')
+    Transaction.find_by_id(1).should be_nil
+  end
 end

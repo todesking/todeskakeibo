@@ -89,6 +89,19 @@ describe CommandParser,'with hierarchical command' do
       'svn status'
     end
     @parser.command('svn').should_not be_nil
+    @parser.command('svn').sub_container('status').name.should == 'status'
+    @parser.execute('svn status').should == 'svn status'
+    @parser.execute('svn update hage').should == 'hage'
+  end
+
+  it 'should define hierarchical command with aliases' do
+    @parser.command('del').should be_nil
+    @parser.command('delete').should be_nil
+    @parser.define_hierarchical_command([ ['delete','del'],['transaction','tr'] ], []) do
+      'delete_transaction'
+    end
+    @parser.command('del').should_not be_nil
+    @parser.command('delete').sub_container('tr').should_not be_nil
   end
 end
 

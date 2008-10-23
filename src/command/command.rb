@@ -18,6 +18,10 @@ class Command
   def to_str
     [name,arg_defs.to_str].join(' ').strip
   end
+  def sub_container(*args)
+    raise ArgumentError.new("#{name}: theres no sub command: #{args.join(' ')}") unless args.empty?
+    self
+  end
 end
 
 class CommandContainer
@@ -47,7 +51,10 @@ class CommandContainer
     return sub.sub_container(*names)
   end
   def execute args
+    raise ArgumentError.new("#{self.name}: subcommand not given") if args.empty?
     name=args.shift
-    @contents[name].execute(args)
+    cmd=@contents[name]
+    raise ArgumentError.new("#{self.name}: unknown subcommand: #{name}") if cmd.nil?
+    cmd.execute(args)
   end
 end
