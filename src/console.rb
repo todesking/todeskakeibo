@@ -13,12 +13,26 @@ ActiveRecord::Base.establish_connection(
 controller=Controller.new
 
 continue=true
+verbose_error=false
 
 controller.define_command('exit',[]) { continue=false;'bye.' }
 controller.define_command('initialize_database',[]) {
   ModelHelper.create_tables
   'done.'
 }
+controller.define_command(['verbose_error','ve'],[[:enable,String,{:default=>nil}]]) do
+  case @enable
+  when 'true'
+    verbose_error=true
+  when 'false'
+    verbose_error=false
+  when nil
+    # do nothing but return current status
+  else
+    raise 'wtf?!?!'
+  end
+  verbose_error
+end
 
 while(continue)
   print 'kakeibo> '
@@ -30,6 +44,7 @@ while(continue)
   rescue => e
     puts 'ERRORR: '
     str=(e.respond_to? :to_str)? e.to_str : e.to_s
+    str+="\n"+e.backtrace.join("\n") if verbose_error
     puts str.split("\n").map{|l|'  '+l}
   end
 end
