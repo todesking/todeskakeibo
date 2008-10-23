@@ -135,4 +135,10 @@ describe CommandContainer do
     cc.execute(['up','cmd1']).should == 'sub-command'
     cc.execute(['up','cmd2','hoge']).should == 'sub-command2 with hoge'
   end
+
+  it 'should have #to_str' do
+    cc=CommandContainer.new('hoge')
+    cc.define_sub_container('fuga')
+    cc.to_str.should_not be_nil
+  end
 end

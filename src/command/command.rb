@@ -57,4 +57,7 @@ class CommandContainer
     raise ArgumentError.new("#{self.name}: unknown subcommand: #{name}") if cmd.nil?
     cmd.execute(args)
   end
+  def to_str
+    "#{name} [#{@contents.values.uniq.map{|v|v.to_str}.join('|')}]"
+  end
 end
