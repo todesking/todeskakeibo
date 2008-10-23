@@ -28,21 +28,23 @@ class Controller
     }
 
     # define commands
-    @parser.define_command(['delete','del'],[]) {
-      'usate: delete [transaction|account_history|endpoint|endpoint_alias]'
+    @parser.define_command(['delete','del'],[ [:type,String], [:id,Numeric]]) {
+      case @type
+      when 'transaction','tr'
+        table=Transaction
+      when 'account_history','ah'
+        table=AccountHistory
+      when 'endpoint','ep'
+        table=Endpoint
+      when 'endpoint_alias','epa'
+        table=EndpointAlias
+      else
+        next 'usage: delete [transaction|account_history|endpoint|endpoint_alias]'
+      end
+      target=table.find_by_id(@id)
+      raise "id #{@id} not found" if target.nil?
+      target.destroy
     }
-    @parser.define_hierarchical_command([ 'delete',['transaction','tr'] ],[ [:id,Numeric] ]) do
-      Transaction.find_by_id(@id).destroy
-    end
-    @parser.define_hierarchical_command([ 'delete',['account_history','ah'] ],[ [:id,Numeric] ]) do
-      AccountHistory.find_by_id(@id).destroy
-    end
-    @parser.define_hierarchical_command([ 'delete',['endpoint','ep'] ],[ [:id,Numeric] ]) do
-      Endpoint.find_by_id(@id).destroy
-    end
-    @parser.define_hierarchical_command([ 'delete',['endpoint_alias','epa'] ],[ [:id,Numeric] ]) do
-      EndpointAlias.find_by_id(@id).destroy
-    end
 
     define_command(['transaction','t'],[[:date,Date], [:src,Endpoint], [:dest,Endpoint], [:amount,Numeric], [:description,String,{:default=>nil}]]) do
       Transaction.new(:date=>@date, :src=>@src, :dest=>@dest, :amount=>@amount,:description=>@description).save
