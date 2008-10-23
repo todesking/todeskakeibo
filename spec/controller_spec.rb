@@ -73,14 +73,14 @@ describe Controller,'command' do
     ]
   end
 
-  it 'transaction should define base_date' do
+  it 'base_date should define base_date' do
     @c.execute('base_date 20071011')
     @c.execute('transaction 10 b wallet 10000')
     tr=Transaction.find(:first)
     tr.date.should be == Date.new(2007,10,10)
   end
 
-  it 'transaction should define transaction' do
+  it 'transaction should add transaction record' do
     @c.execute('transaction 20081001 b wallet 10000')
     tr=Transaction.find(:first)
     tr.date.should be == Date.new(2008,10,1)
@@ -89,7 +89,7 @@ describe Controller,'command' do
     tr.amount.should be == 10000
   end
 
-  it 'account should define account' do
+  it 'account should add account record' do
     @c.execute('account 20081010 b 200000')
     ah=AccountHistory.find(:first)
     ah.endpoint.should be == @bank
@@ -97,20 +97,20 @@ describe Controller,'command' do
     ah.amount.should be == 200000
   end
 
-  it 'endpoint should define endpoint' do
+  it 'endpoint should add endpoint' do
     @c.execute('endpoint credit stash')
     cr=Endpoint.find_by_name('credit')
     cr.should_not be_nil
     cr.parent.should be == @stash
   end
 
-  it 'endpoint should define endpoint with no parent' do
+  it 'endpoint should add endpoint with no parent' do
     @c.execute('endpoint other')
     cr=Endpoint.find_by_name('other')
     cr.parent.should be_nil
   end
 
-  it 'endpoint_alias should define endpoint alias' do
+  it 'endpoint_alias should add endpoint alias' do
     EndpointAlias.lookup('f').should be_nil
     @c.execute('endpoint_alias f food')
     EndpointAlias.lookup('f').should be == @food
