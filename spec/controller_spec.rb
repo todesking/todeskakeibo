@@ -53,7 +53,7 @@ describe Controller,'#type_parser' do
   end
 end
 
-describe Controller,'commands' do
+describe Controller,'command' do
   before(:each) do
     @c=Controller.new
     ModelSpecHelper.setup_database
@@ -73,14 +73,14 @@ describe Controller,'commands' do
     ]
   end
 
-  it 'should define base_date' do
+  it 'transaction should define base_date' do
     @c.execute('base_date 20071011')
     @c.execute('transaction 10 b wallet 10000')
     tr=Transaction.find(:first)
     tr.date.should be == Date.new(2007,10,10)
   end
 
-  it 'should define transaction' do
+  it 'transaction should define transaction' do
     @c.execute('transaction 20081001 b wallet 10000')
     tr=Transaction.find(:first)
     tr.date.should be == Date.new(2008,10,1)
@@ -89,7 +89,7 @@ describe Controller,'commands' do
     tr.amount.should be == 10000
   end
 
-  it 'should define account' do
+  it 'account should define account' do
     @c.execute('account 20081010 b 200000')
     ah=AccountHistory.find(:first)
     ah.endpoint.should be == @bank
@@ -97,20 +97,20 @@ describe Controller,'commands' do
     ah.amount.should be == 200000
   end
 
-  it 'should define endpoint' do
+  it 'endpoint should define endpoint' do
     @c.execute('endpoint credit stash')
     cr=Endpoint.find_by_name('credit')
     cr.should_not be_nil
     cr.parent.should be == @stash
   end
 
-  it 'should define endpoint with no parent' do
+  it 'endpoint should define endpoint with no parent' do
     @c.execute('endpoint other')
     cr=Endpoint.find_by_name('other')
     cr.parent.should be_nil
   end
 
-  it 'should define endpoint alias' do
+  it 'endpoint_alias should define endpoint alias' do
     EndpointAlias.lookup('f').should be_nil
     @c.execute('endpoint_alias f food')
     EndpointAlias.lookup('f').should be == @food
