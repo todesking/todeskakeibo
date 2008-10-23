@@ -43,7 +43,7 @@ describe CommandParser,'#command' do
   end
 end
 
-describe CommandParser,'#define_command and #execute' do
+describe CommandParser,'#define_command' do
   before(:each) do
     @parser=CommandParser.new
   end
@@ -57,30 +57,42 @@ describe CommandParser,'#define_command and #execute' do
     lambda{@parser.define_command('hage')}.should raise_error(ArgumentError)
   end
 
+  it 'should define command with aliases at once' do
+    @parser.define_command(['hage','ha','h'],[]){'hage'}
+    @parser.command('hage').should_not be_nil
+    @parser.execute('hage').should == 'hage'
+    @parser.execute('ha').should == 'hage'
+    @parser.execute('h').should == 'hage'
+  end
+
+  it 'should error when empty array is passed as name' do
+    lambda{@parser.define_command([],[]){}}.should raise_error(ArgumentError)
+  end
+end
+
+describe CommandParser,'#execute' do
+  before(:each) do
+    @parser=CommandParser.new
+  end
+
   it 'should error when undefined command executed' do
     lambda{@parser.execute('hage')}.should raise_error(ArgumentError)
   end
 
   it 'should error when command executed with wrong number of arguments' do
-    @parser.define_command('command',[[:string_arg,String]]) do
-      @string_arg
-    end
+    @parser.define_command('command',[[:string_arg,String]]) {}
     lambda{@parser.execute('command')}.should raise_error(ArgumentError)
     lambda{@parser.execute('command hoge hage')}.should raise_error(ArgumentError)
   end
 
-  it 'should define command with no args by define_command' do
-    called=false
+  it 'should execute command with no args' do
     @parser.define_command('the_command') do
-      called=true
       100
     end
-    called.should be_false
     @parser.execute('the_command').should be == 100
-    called.should be_true
   end
 
-  it 'should define command with one string argument by define_command' do
+  it 'should execute command with one string argument' do
     @parser.define_command('command',[[:string_arg,String]]) do
       @string_arg
     end
@@ -94,6 +106,7 @@ describe CommandParser,'#define_command and #execute' do
     @parser.execute('transaction 20081011 bank wallet 20000').should be == [Date.new(2008,10,11),'bank','wallet',20000]
   end
 end
+
 describe CommandParser,'#define_alias' do
   before(:each) do
     @parser=CommandParser.new

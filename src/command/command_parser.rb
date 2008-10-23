@@ -9,6 +9,14 @@ class CommandParser
   end
   attr_reader :type_parser
   def define_command(name,arg_defs=[],&body)
+    if name.instance_of? Array
+      raise ArgumentError.new('name is empty') if name.empty?
+      primary_name=name[0]
+      aliases=name[1..-1]
+      define_command(primary_name,arg_defs,&body)
+      aliases.each{|a| define_alias(a,primary_name)}
+      return
+    end
     raise ArgumentError.new('block not given') if body.nil?
     raise ArgumentError.new('duplicated name') if @commands.has_key? name
 
