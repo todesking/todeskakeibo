@@ -21,7 +21,7 @@ describe Controller,'#execute' do
   end
 end
 
-describe Controller,'with TypeParser' do
+describe Controller,'#type_parser' do
   before(:all) do
     @c=Controller.new
     ModelSpecHelper.setup_database
@@ -36,7 +36,7 @@ describe Controller,'with TypeParser' do
     ]
   end
 
-  it 'should have type_parser' do
+  it 'should defined and not nil' do
     @c.type_parser.should_not be_nil
   end
 
