@@ -9,6 +9,7 @@ class Command
     @sub_commands={}
   end
   def execute args
+    return sub_command(args.first).execute(args[1..-1]) if !args.empty? && !sub_command(args.first).nil?
     args=@arg_defs.parse(args)
     execution_context=Object.new
     args.each{|k,v|
@@ -20,6 +21,7 @@ class Command
     [name,arg_defs.to_str].join(' ').strip
   end
   def define_sub_command name,command
+    raise ArgumentError.new("sub command #{name} is already exists") unless sub_command(name).nil?
     @sub_commands[name]=command
   end
   def sub_command name

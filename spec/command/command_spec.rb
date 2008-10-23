@@ -59,14 +59,29 @@ end
 
 describe Command,'about sub command' do
   before(:each) do
-    @c=Command.new('command',ArgumentDefinition.new(TypeParser.new,[])){}
-    @carg=Command.new('command_with_arg',ArgumentDefinition.new(TypeParser.new,[[:arg,String]])){}
-    @csub=Command.new('sub-command',ArgumentDefinition.new(TypeParser.new,[ [:arg,String] ])){}
+    @c=Command.new('command',ArgumentDefinition.new(TypeParser.new,[])){'command'}
+    @carg=Command.new('command_with_arg',ArgumentDefinition.new(TypeParser.new,[[:arg,String]])){'command_with_arg'}
+    @csub=Command.new('sub-command',ArgumentDefinition.new(TypeParser.new,[])){'sub-command'}
   end
 
   it 'should define sub command by #define_sub_command and reference by #sub_command' do
     @c.define_sub_command('sub',@csub)
     @c.sub_command('sub').should be @csub
+  end
+
+  it '#define_sub_command should error when command already exists' do
+    @c.define_sub_command('sub',@csub)
+    lambda{@c.define_sub_command('sub',@csub)}.should raise_error(ArgumentError)
+  end
+
+  it '#execute should invoke proper Command object(self or sub command)' do
+    @c.execute([]).should == 'command'
+    lambda{@c.execute(['sub'])}.should raise_error(ArgumentError)
+    @c.define_sub_command('sub',@csub)
+    @c.sub_command('sub').should be @csub
+    @c.execute(['sub']).should == 'sub-command'
+    @c.execute([]).should == 'command'
+    lambda{@c.execute(['sub','hage'])}.should raise_error(ArgumentError)
   end
 end
 
