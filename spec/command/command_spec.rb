@@ -57,6 +57,19 @@ describe Command,'with some arguments' do
   end
 end
 
+describe Command,'about sub command' do
+  before(:each) do
+    @c=Command.new('command',ArgumentDefinition.new(TypeParser.new,[])){}
+    @carg=Command.new('command_with_arg',ArgumentDefinition.new(TypeParser.new,[[:arg,String]])){}
+    @csub=Command.new('sub-command',ArgumentDefinition.new(TypeParser.new,[ [:arg,String] ])){}
+  end
+
+  it 'should define sub command by #define_sub_command and reference by #sub_command' do
+    @c.define_sub_command('sub',@csub)
+    @c.sub_command('sub').should be @csub
+  end
+end
+
 describe CommandContainer do
   it 'should have name' do
     CommandContainer.new('name').name.should == 'name'

@@ -6,6 +6,7 @@ class Command
     @name=name
     @arg_defs=arg_defs
     @body=body
+    @sub_commands={}
   end
   def execute args
     args=@arg_defs.parse(args)
@@ -18,6 +19,14 @@ class Command
   def to_str
     [name,arg_defs.to_str].join(' ').strip
   end
+  def define_sub_command name,command
+    @sub_commands[name]=command
+  end
+  def sub_command name
+    @sub_commands[name]
+  end
+
+  #todo: obsolete
   def sub_container(*args)
     raise ArgumentError.new("#{name}: theres no sub command: #{args.join(' ')}") unless args.empty?
     self
