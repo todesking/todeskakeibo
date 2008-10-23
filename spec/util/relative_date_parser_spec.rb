@@ -16,4 +16,7 @@ describe RelativeDateParser do
     @rdp.parse('02').should be == Date.new(2008,10,2)
     @rdp.parse('3').should be == Date.new(2008,10,3)
   end
+  it 'should parse "today"' do
+    @rdp.parse('today').should be == Date.today
+  end
 end
