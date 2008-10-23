@@ -35,7 +35,10 @@ end
 describe CommandParser,'#command' do
   before(:each) do
     @parser=CommandParser.new
-    @parser.define_command('command_1',[]){}
+    @c1=@parser.define_command('command_1',[]){}
+    @c2=@parser.define_command('command_2',[]){}
+    @parser.define_alias('com1','command_1')
+    @parser.define_alias('coom1','command_1')
   end
   it 'should return Command object from command name' do
     @parser.command('command_1').should_not be_nil
@@ -57,6 +60,11 @@ describe CommandParser,'#define_command' do
     lambda{@parser.define_command('hage')}.should raise_error(ArgumentError)
   end
 
+  it 'should return defined command' do
+    @parser.define_command('hage',[]){'called'}.execute([]).should == 'called'
+    @parser.define_command(['huge','hu'],[]){'hugee'}.execute([]).should == 'hugee'
+  end
+
   it 'should define command with aliases at once' do
     @parser.define_command(['hage','ha','h'],[]){'hage'}
     @parser.command('hage').should_not be_nil
@@ -76,14 +84,15 @@ describe CommandParser,'with hierarchical command' do
   end
 
   it '#define_hierarchical_command should error when names.length < 2' do
-    pending
     lambda{@parser.define_hierarchical_command(['hoge'],[]){}}.should raise_error(ArgumentError)
     lambda{@parser.define_hierarchical_command([],[]){}}.should raise_error(ArgumentError)
+  end
+
+  it '#define_hierarchical_command should returns the defined Command object' do
     @parser.define_hierarchical_command(['hoge','hage'],[]){}.name.should  == 'hage'
   end
 
   it 'should define/reference/execute hierarchical command' do
-    pending
     @parser.define_hierarchical_command(['svn','update'],[[:target,String]]) do
       @target
     end
@@ -91,20 +100,19 @@ describe CommandParser,'with hierarchical command' do
       'svn status'
     end
     @parser.command('svn').should_not be_nil
-    @parser.command('svn').sub_container('status').name.should == 'status'
+    @parser.command('svn').sub_command('status').name.should == 'status'
     @parser.execute('svn status').should == 'svn status'
     @parser.execute('svn update hage').should == 'hage'
   end
 
   it 'should define hierarchical command with aliases' do
-    pending
     @parser.command('del').should be_nil
     @parser.command('delete').should be_nil
     @parser.define_hierarchical_command([ ['delete','del'],['transaction','tr'] ], []) do
       'delete_transaction'
     end
     @parser.command('del').should_not be_nil
-    @parser.command('delete').sub_container('tr').should_not be_nil
+    @parser.command('delete').sub_command('tr').should_not be_nil
   end
 end
 

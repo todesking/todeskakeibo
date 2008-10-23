@@ -7,14 +7,6 @@ describe Command,'when initialize' do
   end
 end
 
-describe Command do
-  it 'should have #sub_container method' do
-    c=Command.new('cmd',ArgumentDefinition.new(TypeParser.new,[])){}
-    c.sub_container.should be c
-    lambda{c.sub_container('hage')}.should raise_error(ArgumentError)
-  end
-end
-
 describe Command,'with no arguments' do
   before(:each) do
     @command=Command.new('command',ArgumentDefinition.new(TypeParser.new,[])) do
@@ -74,6 +66,17 @@ describe Command,'about sub command' do
   it 'should define sub command by #define_sub_command and reference by #sub_command' do
     @c.define_sub_command(@csub)
     @c.sub_command('sub').should be @csub
+  end
+
+  it '#define_sub_command returns defined command instance' do
+    @c.define_sub_command(@csub).should be @csub
+    @c.define_sub_command('hoge',TypeParser.new,[]){}.name.should == 'hoge'
+  end
+
+  it '#define_sub_command should define command and also aliases' do
+    @c.define_sub_command(['delete','del'],TypeParser.new,[]){}
+    @c.sub_command('delete').name.should == 'delete'
+    @c.sub_command('del').should be @c.sub_command('delete')
   end
   
   it '#define_sub_command should error when argument length==3 and block not given' do

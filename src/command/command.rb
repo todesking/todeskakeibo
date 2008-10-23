@@ -31,12 +31,21 @@ class Command
       command=args[0]
       raise ArgumentError.new("sub command #{command.name} is already exists") unless sub_command(command.name).nil?
       @sub_commands[command.name]=command
+      return command
     when 3
-      name=args[0]
+      if args[0].instance_of? Array
+        name=args[0][0]
+        aliases=args[0][1..-1]
+      else
+        name=args[0]
+        aliases=[]
+      end
       type_parser=args[1]
       argdefs=args[2]
       raise ArgumentError.new("sub command #{name} is already exists") unless sub_command(name).nil?
       @sub_commands[name]=Command.new(name,ArgumentDefinition.new(type_parser,argdefs),&block)
+      aliases.each{|a|alias_sub_command(a,name)}
+      return @sub_commands[name]
     else
       raise ArgumentError.new('illegal argument length')
     end
@@ -50,11 +59,5 @@ class Command
 
   def sub_command name
     @sub_commands[name]
-  end
-
-  #todo: obsolete
-  def sub_container(*args)
-    raise ArgumentError.new("#{name}: theres no sub command: #{args.join(' ')}") unless args.empty?
-    self
   end
 end
