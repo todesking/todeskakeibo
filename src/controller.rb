@@ -57,33 +57,34 @@ class Controller
     end
 
     # define commands(untestable, most of is 'show' command)
-    define_command(['help','h','?','he'],[[:sub_command,String,{:default=>nil}]]) do
-      default_str= <<EOS
-help : show this message
-help commands : show commands with aliases
-help <command-name> : show command usage
-EOS
-      case @sub_command
-      when 'commands'
-        lines=[]
-        parser.non_alias_commands.each{|k,v|
-          lines << "#{v.to_str}"
-          lines << "aliases: #{parser.aliases_for(v).map{|k,v|k}.join(' ')}" unless parser.aliases_for(v).empty?
-        }
-        lines.join("\n")
-      when nil
-        default_str
-      else
-        cmd=parser.command(@sub_command)
+    
+    define_command(['help','h','he','?'],[ [:arg,String,{:default=>nil}] ]) do
+      unless @arg.nil?
+        cmd=parser.command(@arg)
         if cmd.nil?
-          "undefined command: #{@sub_command}"
+          "help: command #{@arg} is undefined"
         else
           lines=[]
           lines << "#{cmd.to_str}"
           lines << "aliases: #{parser.aliases_for(cmd).map{|k,v|k}.join(' ')}" unless parser.aliases_for(cmd).empty?
           lines.join("\n")
         end
+      else
+        <<EOS
+help : show this message
+help commands|co : show commands with aliases
+help <command-name> : show command usage
+EOS
       end
+    end
+    @parser.define_hierarchical_command(['help',['commands','co']],[]) do
+      lines=[]
+      lines << 'Commands:'
+      parser.non_alias_commands.each{|k,v|
+        lines << "  #{v.to_str}"
+        lines << "    aliases: #{parser.aliases_for(v).map{|k,v|k}.join(' ')}" unless parser.aliases_for(v).empty?
+      }
+      lines.join("\n")
     end
 
     define_command(['endpoints','eps'],[]) do
@@ -106,6 +107,16 @@ EOS
       }
       fmt=DataStructureFormatter::Table::Formatter.new ac,['id','date','src','dest','amount','descr.']
       fmt.format(Transaction.find(:all))
+    end
+
+    define_command(['account_histories','ahs']) do
+      ac=DataStructureFormatter::Table::Accessor.new
+      ac.row_enumerator {|data| data}
+      ac.column_enumerator {|row|
+        [row.id,row.date.to_s,row.endpoint.name,row.amount]
+      }
+      fmt=DataStructureFormatter::Table::Formatter.new ac,['id','date','endpoint','amount']
+      fmt.format(AccountHistory.find(:all))
     end
   end
   def define_command(name,defs=[],&block)
