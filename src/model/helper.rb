@@ -25,15 +25,17 @@ module ModelHelper
         id integer not null primary key,
         date date not null,
         endpoint string not null,
-        amount integer not null
+        amount integer not null,
+        description text
       )
     EOS
     Endpoint.connection.execute 'drop table if exists endpoints'
     Endpoint.connection.execute <<-'EOS'
       create table endpoints (
         id integer not null primary key,
+        name varchar(255) not null unique,
         parent integer,
-        name varchar(255) not null unique
+        description text
       )
     EOS
     EndpointAlias.connection.execute 'drop table if exists endpoint_aliases'

@@ -89,12 +89,28 @@ describe Controller,'command' do
     tr.amount.should be == 10000
   end
 
+  it 'transaction should accepts description argument' do
+    @c.execute('transaction 20081010 wallet food 105 シュークリーム')
+    Transaction.find(:first).amount.should == 105
+    Transaction.find(:first).description.should == 'シュークリーム'
+  end
+
   it 'account should add account record' do
     @c.execute('account 20081010 b 200000')
     ah=AccountHistory.find(:first)
     ah.endpoint.should be == @bank
     ah.date.should be == Date.new(2008,10,10)
     ah.amount.should be == 200000
+    ah.description.should be_nil
+  end
+
+  it 'account should accepts description' do
+    @c.execute('account 20081010 b 200000 wtf')
+    ah=AccountHistory.find(:first)
+    ah.endpoint.should be == @bank
+    ah.date.should be == Date.new(2008,10,10)
+    ah.amount.should be == 200000
+    ah.description.should == 'wtf'
   end
 
   it 'endpoint should add endpoint' do
@@ -102,6 +118,14 @@ describe Controller,'command' do
     cr=Endpoint.find_by_name('credit')
     cr.should_not be_nil
     cr.parent.should be == @stash
+  end
+
+  it 'endpoint should accepts description' do
+    @c.execute('endpoint credit stash クレジットカード')
+    cr=Endpoint.find_by_name('credit')
+    cr.should_not be_nil
+    cr.parent.should be == @stash
+    cr.description.should == 'クレジットカード'
   end
 
   it 'endpoint should add endpoint with no parent' do
@@ -123,5 +147,31 @@ describe Controller,'command' do
     Transaction.find_by_id(1).should_not be_nil
     @c.execute('delete transaction 1')
     Transaction.find_by_id(1).should be_nil
+  end
+  it 'delete account_history should delete the account_history' do
+    tr=AccountHistory.new(:date=>Date.new(2008,10,23),:endpoint=>@wallet,:amount=>1000)
+    tr.save
+    tr.id.should == 1
+    AccountHistory.find_by_id(1).should_not be_nil
+    @c.execute('delete account_history 1')
+    AccountHistory.find_by_id(1).should be_nil
+  end
+  it 'delete endpoint should delete the endpoint' do
+    ep=Endpoint.new(:name=>'hage')
+    ep.save
+    id=ep.id
+    id.should_not be_nil
+    Endpoint.find_by_id(id).should_not be_nil
+    @c.execute('delete endpoint '+id.to_s)
+    Endpoint.find_by_id(id).should be_nil
+  end
+  it 'delete endpoint_alias should delete the endpoint alias' do
+    epa=EndpointAlias.new(:name=>'hage',:endpoint=>@wallet)
+    epa.save
+    id=epa.id
+    id.should_not be_nil
+    EndpointAlias.find_by_id(id).should_not be_nil
+    @c.execute('delete endpoint_alias '+id.to_s)
+    EndpointAlias.find_by_id(id).should be_nil
   end
 end

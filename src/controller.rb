@@ -28,16 +28,28 @@ class Controller
     }
 
     # define commands
-    @parser.define_hierarchical_command([ ['delete','del'],['transaction','tr'] ],[ [:id,Numeric] ]) do
+    @parser.define_command(['delete','del'],[]) {
+      'usate: delete [transaction|account_history|endpoint|endpoint_alias]'
+    }
+    @parser.define_hierarchical_command([ 'delete',['transaction','tr'] ],[ [:id,Numeric] ]) do
       Transaction.find_by_id(@id).destroy
     end
-
-    define_command(['transaction','t'],[[:date,Date], [:src,Endpoint], [:dest,Endpoint], [:amount,Numeric]]) do
-      Transaction.new(:date=>@date, :src=>@src, :dest=>@dest, :amount=>@amount).save
+    @parser.define_hierarchical_command([ 'delete',['account_history','ah'] ],[ [:id,Numeric] ]) do
+      AccountHistory.find_by_id(@id).destroy
+    end
+    @parser.define_hierarchical_command([ 'delete',['endpoint','ep'] ],[ [:id,Numeric] ]) do
+      Endpoint.find_by_id(@id).destroy
+    end
+    @parser.define_hierarchical_command([ 'delete',['endpoint_alias','epa'] ],[ [:id,Numeric] ]) do
+      EndpointAlias.find_by_id(@id).destroy
     end
 
-    define_command(['account','a'],[[:date,Date], [:endpoint,Endpoint], [:amount,Numeric]]) do
-      AccountHistory.new(:date=>@date, :endpoint=>@endpoint, :amount=>@amount).save
+    define_command(['transaction','t'],[[:date,Date], [:src,Endpoint], [:dest,Endpoint], [:amount,Numeric], [:description,String,{:default=>nil}]]) do
+      Transaction.new(:date=>@date, :src=>@src, :dest=>@dest, :amount=>@amount,:description=>@description).save
+    end
+
+    define_command(['account','a'],[[:date,Date], [:endpoint,Endpoint], [:amount,Numeric],[:description,String,{:default=>nil}]]) do
+      AccountHistory.new(:date=>@date, :endpoint=>@endpoint, :amount=>@amount, :description=>@description).save
     end
 
     define_command(['base_date','bd'],[[:date,Date,{:default=>nil}]]) do
@@ -48,8 +60,8 @@ class Controller
       end
     end
 
-    define_command(['endpoint','ep'],[[:ep_name,String],[:parent,Endpoint,{:default=>nil}]]) do
-      Endpoint.new(:name=>@ep_name,:parent=>@parent).save
+    define_command(['endpoint','ep'],[[:ep_name,String],[:parent,Endpoint,{:default=>nil}],[:description,String,{:default=>nil}]]) do
+      Endpoint.new(:name=>@ep_name,:parent=>@parent,:description=>@description).save
     end
     
     define_command(['endpoint_alias','epa'],[[:alias_name,String],[:alias_for,Endpoint]]) do
