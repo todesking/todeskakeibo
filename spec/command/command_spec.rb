@@ -61,27 +61,48 @@ describe Command,'about sub command' do
   before(:each) do
     @c=Command.new('command',ArgumentDefinition.new(TypeParser.new,[])){'command'}
     @carg=Command.new('command_with_arg',ArgumentDefinition.new(TypeParser.new,[[:arg,String]])){'command_with_arg'}
-    @csub=Command.new('sub-command',ArgumentDefinition.new(TypeParser.new,[])){'sub-command'}
+    @csub=Command.new('sub',ArgumentDefinition.new(TypeParser.new,[])){'sub'}
   end
 
   it 'should define sub command by #define_sub_command and reference by #sub_command' do
-    @c.define_sub_command('sub',@csub)
+    @c.define_sub_command(@csub)
     @c.sub_command('sub').should be @csub
   end
 
   it '#define_sub_command should error when command already exists' do
-    @c.define_sub_command('sub',@csub)
-    lambda{@c.define_sub_command('sub',@csub)}.should raise_error(ArgumentError)
+    @c.define_sub_command(@csub)
+    lambda{@c.define_sub_command(@csub)}.should raise_error(ArgumentError)
   end
 
   it '#execute should invoke proper Command object(self or sub command)' do
-    @c.execute([]).should == 'command'
-    lambda{@c.execute(['sub'])}.should raise_error(ArgumentError)
-    @c.define_sub_command('sub',@csub)
+    @carg.execute(['foo']).should == 'command_with_arg'
+    @carg.execute(['sub']).should == 'command_with_arg'
+    @carg.define_sub_command(@csub)
+    @carg.sub_command('sub').should be @csub
+    @carg.execute(['sub']).should == 'sub'
+    @carg.execute(['foo']).should == 'command_with_arg'
+  end
+
+  it '#sub_commands should list up all of sub command' do
+    @c.sub_commands.should be_empty
+    @c.define_sub_command(@csub)
+    @c.sub_commands.should_not be_empty
+  end
+
+  it '#alias_sub_command should make alias of the sub commnd' do
+    @c.define_sub_command(@csub)
     @c.sub_command('sub').should be @csub
-    @c.execute(['sub']).should == 'sub-command'
-    @c.execute([]).should == 'command'
-    lambda{@c.execute(['sub','hage'])}.should raise_error(ArgumentError)
+    @c.sub_command('sub_alias').should be_nil
+    @c.alias_sub_command('sub_alias','sub')
+    @c.sub_command('sub_alias').should be @csub
+  end
+
+  it '#alias_sub_command should error when exists name or undefined alias_for passed' do
+    @c.define_sub_command @csub
+    lambda{@c.alias_sub_command 'sub','sub'}.should raise_error(ArgumentError)
+    lambda{@c.alias_sub_command 'hoge','hage'}.should raise_error(ArgumentError)
+    @c.alias_sub_command 'fuga','sub'
+    @c.sub_command('fuga').should be @csub
   end
 end
 
