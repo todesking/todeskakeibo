@@ -70,6 +70,28 @@ describe CommandParser,'#define_command' do
   end
 end
 
+describe CommandParser,'with hierarchical command' do
+  before(:each) do
+    @parser=CommandParser.new
+  end
+
+  it '#define_hierarchical_command should error when names.length < 2' do
+    lambda{@parser.define_hierarchical_command(['hoge'],[]){}}.should raise_error(ArgumentError)
+    lambda{@parser.define_hierarchical_command([],[]){}}.should raise_error(ArgumentError)
+    @parser.define_hierarchical_command(['hoge','hage'],[]){}.name.should  == 'hage'
+  end
+
+  it 'should define/reference/execute hierarchical command' do
+    @parser.define_hierarchical_command(['svn','update'],[[:target,String]]) do
+      @target
+    end
+    @parser.define_hierarchical_command(['svn','status'],[]) do
+      'svn status'
+    end
+    @parser.command('svn').should_not be_nil
+  end
+end
+
 describe CommandParser,'#execute' do
   before(:each) do
     @parser=CommandParser.new

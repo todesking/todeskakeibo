@@ -47,3 +47,65 @@ describe Command,'with some arguments' do
     cmd.to_str.should be == 'cmd arg1:String arg2:Numeric arg3:Date'
   end
 end
+
+describe CommandContainer do
+  it 'should have name' do
+    CommandContainer.new('name').name.should == 'name'
+  end
+
+  it 'should define and reference sub container' do
+    cc=CommandContainer.new('hoge')
+    cc.sub_container('hage').should be_nil
+    cc.define_sub_container('hage').name.should == 'hage'
+    cc.sub_container('hage').name.should == 'hage'
+  end
+
+  it '#define_sub_container returns self if empty array passed' do
+    cc=CommandContainer.new('hoge')
+    cc.sub_container().should be == cc
+  end
+
+  it '#define_sub_container should return exists instance when name is already defined' do
+    cc=CommandContainer.new('hoge')
+    cc.define_sub_container('moge')
+    cc.sub_container('moge').should be cc.define_sub_container('moge')
+  end
+
+  it '#define_sub_container should define sub container with alias names' do
+    cc=CommandContainer.new('hoge')
+    cc.define_sub_container(['hoge','ho','h'])
+    cc.sub_container('hoge').name.should == 'hoge'
+    cc.sub_container('ho').name.should == 'hoge'
+  end
+
+  it '#command should returns hierarchical sub container/command' do
+    cc=CommandContainer.new('java')
+    sc_3=cc.define_sub_container('1','2','3')
+    cc.sub_container('1','2','3').should be sc_3
+  end
+
+  it '#define_command should define new command of the container' do
+    c=CommandContainer.new('svn')
+    c.define_sub_container('up').define_command('cmd',Command.new('cmd',ArgumentDefinition.new(TypeParser.new,[])){'command'})
+    c.execute(['up','cmd']).should == 'command'
+  end
+
+  it '#define_command should return the Command object' do
+    c=CommandContainer.new('svn')
+    cmd=Command.new('up',ArgumentDefinition.new(TypeParser.new,[])){}
+    c.define_command('up',cmd).should be cmd
+  end
+
+  it 'should store sub command' do
+    cc=CommandContainer.new('svn')
+    cc.sub_container('up').should be_nil
+    cc.define_sub_container('up')
+    cc.sub_container('up').should_not be_nil
+    cmd1=Command.new('cmd1',ArgumentDefinition.new(TypeParser.new,[])){'sub-command'}
+    cc.sub_container('up').define_command('cmd1',cmd1)
+    cmd2=Command.new('cmd2',ArgumentDefinition.new(TypeParser.new,[ [:arg,String] ])){'sub-command2 with '+@arg}
+    cc.sub_container('up').define_command('cmd2',cmd2)
+    cc.execute(['up','cmd1']).should == 'sub-command'
+    cc.execute(['up','cmd2','hoge']).should == 'sub-command2 with hoge'
+  end
+end

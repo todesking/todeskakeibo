@@ -20,6 +20,13 @@ class CommandParser
 
     @commands[name]=Command.new(name,ArgumentDefinition.new(@type_parser,arg_defs),&body)
   end
+  def define_hierarchical_command(names,arg_defs=[],&body)
+    raise ArgumentError.new('names.length < 2') unless 1 < names.length
+    @commands[names.first] ||= CommandContainer.new(names.first)
+    package=@commands[names.first]
+    package=package.define_sub_container(names[1..-2])
+    package.define_command(names.last,Command.new(names.last,ArgumentDefinition.new(@type_parser,arg_defs),&body))
+  end
   def execute(command_string)
     args=command_string.split(' ')
     name=args.shift
