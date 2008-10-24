@@ -7,11 +7,15 @@ class Transaction < ActiveRecord::Base
   belongs_to :src,{ :class_name => 'Endpoint', :foreign_key => :src }
   belongs_to :dest,{ :class_name => 'Endpoint', :foreign_key => :dest }
   # note: from,to is Date, inclusive
-  def self.balance_between(endpoint,from,to,include_subendpoint=false)
+  def self.balance_between(endpoint,from,to,include_subendpoint=true)
     raise ArgumentError.new('from > to') unless from.nil? || to.nil? || from <= to
     raise ArgumentError.new('endpoint must be Endpoint object') unless endpoint.kind_of? Endpoint
 
-    return endpoint.descendants.inject(balance_between(endpoint,from,to)){|a,d| a+balance_between(d,from,to)} if include_subendpoint
+    if include_subendpoint
+      return endpoint.descendants.inject(balance_between(endpoint,from,to,false)){|a,d|
+        a+balance_between(d,from,to,false)
+      }
+    end
 
     cond_str='%s = ?'
     cond_str+=' and ? <= date' unless from.nil?
@@ -26,21 +30,18 @@ class Transaction < ActiveRecord::Base
     income=Transaction.sum('amount',:conditions=>cond)
     return income - expenses
   end
-  def self.balance_at(endpoint,year,month=nil,day=nil)
+  def self.balance_at(endpoint,year=nil,month=nil,day=nil,include_subendpoint=true)
     raise ArgumentError if endpoint.nil?
-    raise ArgumentError if year.nil?
     raise ArgumentError('day argument must nil when month==nil') if month.nil? && !day.nil?
 
-    if(month.nil?)
-      date_cond='%04d-%%' % [year]
+    if year.nil?
+      balance_between(endpoint,nil,nil,include_subendpoint)
+    elsif month.nil?
+      balance_between(endpoint,Date.new(year,1,1),Date.new(year+1,1,1)-1,include_subendpoint)
     elsif day.nil?
-      date_cond='%04d-%02d-%%' % [year,month]
-    elsif
-      date_cond='%04d-%02d-%02d' % [year,month,day]
+      balance_between(endpoint,Date.new(year,month,1),(Date.new(year,month,1) >> 1)-1,include_subendpoint)
+    else
+      balance_between(endpoint,Date.new(year,month,day),Date.new(year,month,day),include_subendpoint)
     end
-
-    expenses=Transaction.sum(:amount,:conditions=>['src = ? and date like ?',endpoint,date_cond])
-    income=Transaction.sum(:amount,:conditions=>['dest = ? and date like ?',endpoint,date_cond])
-    return income-expenses
   end
 end

@@ -56,6 +56,7 @@ describe Transaction,'when no transactions' do
     Transaction.balance_between(@bank,Date.new(2008,10,1),Date.new(2008,12,1)).should be == 0
   end
 end
+
 describe Transaction,'when some transactions' do
   before(:all) do
     ModelSpecHelper.setup_database
@@ -150,7 +151,9 @@ describe Transaction,'when some transactions' do
     assert_balance_between(@bank ,  Date.new(2008,10,3) ,  nil                  ,  0     )
     assert_balance_between(@bank ,  Date.new(2008,10,2) ,  nil                  ,  35000)
   end
+
 end
+
 describe Transaction,'with nested endpoint' do
   before(:all) do
     ModelSpecHelper.setup_database
@@ -209,7 +212,12 @@ describe Transaction,'with nested endpoint' do
     ]
   end
   it 'should returns expense endpoint\'s balance between 10-10 to 10-15(sub endpoint is excluded)' do
-    Transaction.balance_between(@expense,Date.new(2008,10,10),Date.new(2008,10,15)).should be == 1000
+    Transaction.balance_between(@expense,Date.new(2008,10,10),Date.new(2008,10,15),false).should be == 1000
+  end
+  it 'should returns expense endpoint\'s balance between 10-10 to 10-15(sub endpoint is included)' do
+    Transaction.balance_between(@expense,Date.new(2008,10,10),Date.new(2008,10,15),true).should be == 2000
+    Transaction.balance_between(@expense,Date.new(2008,10,10),Date.new(2008,10,15)).should be == 2000
+    Transaction.balance_between(@stash,Date.new(2008,10,10),Date.new(2008,10,15)).should be == 98000
   end
   it 'should returns expense endpoint\'s balance between 10-10 to 10-15(sub endpoint is included)' do
     Transaction.balance_between(@expense,Date.new(2008,10,10),Date.new(2008,10,15),true).should be == 2000
@@ -219,5 +227,6 @@ describe Transaction,'with nested endpoint' do
     Transaction.balance_at(@wallet,2008,11).should be == +39000
     Transaction.balance_at(@wallet,2008,10,10).should be == +9000
     Transaction.balance_at(@wallet,2009,1,3).should be == -2000
+    Transaction.balance_at(@wallet).should == 74700
   end
 end
