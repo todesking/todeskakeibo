@@ -1,6 +1,16 @@
 puts 'loading...'
 require 'rubygems'
 require 'activerecord'
+require 'kconv'
+
+def in_filter str
+  Kconv.toutf8 str
+end
+
+def out_filter str
+  return str.map{|s|Kconv.tosjis s} if str.instance_of? Array
+  return Kconv.tosjis str
+end
 
 require File.dirname(__FILE__)+'/'+'controller.rb'
 require File.dirname(__FILE__)+'/'+'model/helper.rb'
@@ -36,15 +46,15 @@ end
 
 while(continue)
   print 'kakeibo> '
-  cmd=gets
+  cmd=in_filter gets
   begin
     resp=controller.execute(cmd)
     resp_str=(resp.respond_to? :to_str)? resp.to_str : resp.to_s
-    puts resp_str.split("\n").map{|l|'  '+l}
+    puts out_filter(resp_str.split("\n").map{|l|'  '+l})
   rescue => e
     puts 'ERRORR: '
     str=(e.respond_to? :to_str)? e.to_str : e.to_s
     str+="\n"+e.backtrace.join("\n") if verbose_error
-    puts str.split("\n").map{|l|'  '+l}
+    puts out_filter(str.split("\n").map{|l|'  '+l})
   end
 end
