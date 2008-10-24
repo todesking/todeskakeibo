@@ -130,9 +130,8 @@ EOS
         ac=DataStructureFormatter::Table::Accessor.new
         ac.row_enumerator {|target| target}
         ac.column_enumerator {|row|
-          aliases=EndpointAlias.find(:all,:conditions=>{:endpoint=>row.id}).map{|a|a.name}
           parent_name=row.parent.nil? ? '':row.parent.name
-          [row.id,row.name,parent_name,aliases.join(','),row.description]
+          [row.id,row.name,parent_name,row.aliases.map{|a|a.name}.join(','),row.description]
         }
         fmt=DataStructureFormatter::Table::Formatter.new(ac,['id','name','parent','aliases','descr.'])
         fmt.format(Endpoint.find(:all))
