@@ -42,7 +42,7 @@ module DataStructureFormatter
         (0...children.length-1).each{|i|
           format_impl(children[i],true,child_prefix,'+-',output,include_node)
         }
-        format_impl(children.last,false,child_prefix,'L-',output,include_node) unless children.empty?
+        format_impl(children.last,false,child_prefix,'`-',output,include_node) unless children.empty?
       end
     end
   end

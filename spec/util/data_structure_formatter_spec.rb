@@ -20,10 +20,10 @@ describe DataStructureFormatter::Tree do
     formatter.format(@data).should be == <<'EOS'
 --1
   +-2
-  L-3
+  `-3
     +-4
-    | L-5
-    L-6
+    | `-5
+    `-6
 EOS
   end
   it '::Formatter#format_as_array should return [[tree node, formatted line]... ]' do
