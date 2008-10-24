@@ -113,15 +113,19 @@ EOS
     define_command(['endpoints','eps'],[ [:format_type,String,{:default=>'tree'}] ]) do
       case @format_type
       when 'tree'
-        ac=DataStructureFormatter::Tree::Accessor.new
-        ac.child_enumerator {|target| target.children}
-        ac.value_accessor {|target| "#{target.name}(#{target.id})"}
-        fmt=DataStructureFormatter::Tree::Formatter.new ac
-        msg=''
-        Endpoint.find(:all,:conditions=>{:parent=>nil}).each{|ep|
-          msg << fmt.format(ep)
+        tree_ac=DataStructureFormatter::Tree::Accessor.new
+        tree_ac.value_accessor{|node| node.name}
+        tree_ac.child_enumerator{|node| node.children}
+        tree_fmt=DataStructureFormatter::Tree::Formatter.new tree_ac
+        data=[]
+        Endpoint.roots.each{|ep| data += tree_fmt.format_array(ep) }
+        table_ac=DataStructureFormatter::Table::Accessor.new 
+        table_ac.row_enumerator {|data| data }
+        table_ac.column_enumerator{|row|
+          [row[0].id,row[1], row[0].balance_at(@year,@month,@date)]
         }
-        msg
+        table_fmt=DataStructureFormatter::Table::Formatter.new(table_ac,['id','endpoint','balance'])
+        table_fmt.format data
       when 'table'
         ac=DataStructureFormatter::Table::Accessor.new
         ac.row_enumerator {|target| target}
@@ -157,11 +161,11 @@ EOS
       fmt.format(AccountHistory.find(:all,:order=>'date'))
     end
 
-    define_command(['balance'],[
-                     [:endpoint,Endpoint,{:default=>nil}],
+    define_command(['balance','b'],[
                      [:year,Numeric,{:default=>nil}],
                      [:month,Numeric,{:default=>nil}],
-                     [:date,Numeric,{:default=>nil}] ]) do
+                     [:date,Numeric,{:default=>nil}],
+                     [:endpoint,Endpoint,{:default=>nil}] ]) do
       tree_ac=DataStructureFormatter::Tree::Accessor.new
       tree_ac.value_accessor{|node| node.name}
       tree_ac.child_enumerator{|node| node.children}

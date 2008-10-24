@@ -1,7 +1,14 @@
-puts 'loading...'
+start=Time.now
+puts 'loading libs...'
 require 'rubygems'
 require 'activerecord'
 require 'kconv'
+puts 'loading controller...'
+require File.dirname(__FILE__)+'/'+'controller.rb'
+puts 'loading model...'
+require File.dirname(__FILE__)+'/'+'model/helper.rb'
+puts "loading time: #{Time.now-start}"
+puts
 
 def in_filter str
   Kconv.toutf8 str
@@ -11,9 +18,6 @@ def out_filter str
   return str.map{|s|Kconv.tosjis s} if str.instance_of? Array
   return Kconv.tosjis str
 end
-
-require File.dirname(__FILE__)+'/'+'controller.rb'
-require File.dirname(__FILE__)+'/'+'model/helper.rb'
 
 ActiveRecord::Base.establish_connection(
   :adapter => 'sqlite3',

@@ -1,9 +1,12 @@
 require 'rubygems'
 require 'active_record'
 
+require File.dirname(__FILE__)+'/'+'endpoint_alias.rb'
+
 class Endpoint < ActiveRecord::Base
   belongs_to :parent,:class_name=>'Endpoint',:foreign_key=>:parent
   has_many :children,:class_name=>'Endpoint',:foreign_key=>:parent
+  has_many :aliases,:class_name=>'EndpointAlias',:foreign_key=>:endpoint
 
   def self.roots
     find(:all,:conditions=>{:parent=>nil})

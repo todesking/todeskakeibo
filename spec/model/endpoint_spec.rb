@@ -24,11 +24,21 @@ describe Endpoint,'with some entries' do
       [:salary,:income]
     ]
     ModelSpecHelper.import_endpoints self
+    EndpointAlias.delete_all
+    ModelSpecHelper.create_endpoint_aliases [
+      [:b,@bank],
+      [:w,@wallet]
+    ]
   end
   it '.roots should return root entries' do
     Endpoint.roots.length.should == 3
     Endpoint.roots.should be_include(@stash)
     Endpoint.roots.should_not be_include(@salary)
+  end
+  it '#aliases should return its aliases' do
+    @stash.aliases.should be_empty
+    @bank.aliases.length.should == 1
+    @bank.aliases.first.name.should == 'b'
   end
 end
 
