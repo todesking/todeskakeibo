@@ -28,7 +28,15 @@ class Controller
     }
 
     # define commands
-    @parser.define_command(['delete','del'],[ [:type,String], [:id,Numeric]]) {
+    define_command(['base_date','bd'],[[:date,Date,{:default=>nil}]]) do
+      if @date.nil?
+        "base date: #{date_parser.base_date.to_s}"
+      else
+        date_parser.base_date=@date
+      end
+    end
+
+    @parser.define_command(['delete','del','rm'],[ [:type,String], [:id,Numeric]]) {
       case @type
       when 'transaction','tr'
         table=Transaction
@@ -44,30 +52,31 @@ class Controller
       target=table.find_by_id(@id)
       raise "id #{@id} not found" if target.nil?
       target.destroy
+      "#{table.name} \##{target.id} was destroied"
     }
 
-    define_command(['transaction','t'],[[:date,Date], [:src,Endpoint], [:dest,Endpoint], [:amount,Numeric], [:description,String,{:default=>nil}]]) do
-      Transaction.new(:date=>@date, :src=>@src, :dest=>@dest, :amount=>@amount,:description=>@description).save
+    define_command(['transaction','tr','t'],[[:date,Date], [:src,Endpoint], [:dest,Endpoint], [:amount,Numeric], [:description,String,{:default=>nil}]]) do
+      tr=Transaction.new(:date=>@date, :src=>@src, :dest=>@dest, :amount=>@amount,:description=>@description)
+      tr.save
+      "transaction \##{tr.id} added."
     end
 
-    define_command(['account','a'],[[:date,Date], [:endpoint,Endpoint], [:amount,Numeric],[:description,String,{:default=>nil}]]) do
-      AccountHistory.new(:date=>@date, :endpoint=>@endpoint, :amount=>@amount, :description=>@description).save
-    end
-
-    define_command(['base_date','bd'],[[:date,Date,{:default=>nil}]]) do
-      if @date.nil?
-        "base date: #{date_parser.base_date.to_s}"
-      else
-        date_parser.base_date=@date
-      end
+    define_command(['account','ac','a'],[[:date,Date], [:endpoint,Endpoint], [:amount,Numeric],[:description,String,{:default=>nil}]]) do
+      ah=AccountHistory.new(:date=>@date, :endpoint=>@endpoint, :amount=>@amount, :description=>@description)
+      ah.save
+      "account history \##{ah.id} added"
     end
 
     define_command(['endpoint','ep'],[[:ep_name,String],[:parent,Endpoint,{:default=>nil}],[:description,String,{:default=>nil}]]) do
-      Endpoint.new(:name=>@ep_name,:parent=>@parent,:description=>@description).save
+      ep=Endpoint.new(:name=>@ep_name,:parent=>@parent,:description=>@description)
+      ep.save
+      "enpoint \##{ep.id}(#{ep.name}) added."
     end
     
     define_command(['endpoint_alias','epa'],[[:alias_name,String],[:alias_for,Endpoint]]) do
-      EndpointAlias.new(:name=>@alias_name,:endpoint=>@alias_for).save
+      epa=EndpointAlias.new(:name=>@alias_name,:endpoint=>@alias_for)
+      epa.save
+      "endpoint alias \##{epa.id}(#{epa.name} => #{@alias_for.name}) added."
     end
 
     # define commands(untestable, most of is 'show' command)
@@ -101,16 +110,31 @@ EOS
       lines.join("\n")
     end
 
-    define_command(['endpoints','eps'],[]) do
-      ac=DataStructureFormatter::Tree::Accessor.new
-      ac.child_enumerator {|target| target.children}
-      ac.value_accessor {|target| target.name}
-      fmt=DataStructureFormatter::Tree::Formatter.new ac
-      msg=''
-      Endpoint.find(:all,:conditions=>{:parent=>nil}).each{|ep|
-        msg << fmt.format(ep)
-      }
-      msg
+    define_command(['endpoints','eps'],[ [:format_type,String,{:default=>'tree'}] ]) do
+      case @format_type
+      when 'tree'
+        ac=DataStructureFormatter::Tree::Accessor.new
+        ac.child_enumerator {|target| target.children}
+        ac.value_accessor {|target| "#{target.name}(#{target.id})"}
+        fmt=DataStructureFormatter::Tree::Formatter.new ac
+        msg=''
+        Endpoint.find(:all,:conditions=>{:parent=>nil}).each{|ep|
+          msg << fmt.format(ep)
+        }
+        msg
+      when 'table'
+        ac=DataStructureFormatter::Table::Accessor.new
+        ac.row_enumerator {|target| target}
+        ac.column_enumerator {|row|
+          aliases=EndpointAlias.find(:all,:conditions=>{:endpoint=>row.id}).map{|a|a.name}
+          parent_name=row.parent.nil? ? '':row.parent.name
+          [row.id,row.name,parent_name,aliases.join(','),row.description]
+        }
+        fmt=DataStructureFormatter::Table::Formatter.new(ac,['id','name','parent','aliases','descr.'])
+        fmt.format(Endpoint.find(:all))
+      else
+        raise "unknown format type: #{@format_type}. tree|table is acceptable"
+      end
     end
 
     define_command(['transactions','trs']) do
