@@ -156,6 +156,34 @@ EOS
       fmt=DataStructureFormatter::Table::Formatter.new ac,['id','date','endpoint','amount']
       fmt.format(AccountHistory.find(:all,:order=>'date'))
     end
+
+    define_command(['balance'],[
+                     [:endpoint,Endpoint,{:default=>nil}],
+                     [:year,Numeric,{:default=>nil}],
+                     [:month,Numeric,{:default=>nil}],
+                     [:date,Numeric,{:default=>nil}] ]) do
+      tree_ac=DataStructureFormatter::Tree::Accessor.new
+      tree_ac.value_accessor{|node| node.name}
+      tree_ac.child_enumerator{|node| node.children}
+      tree_fmt=DataStructureFormatter::Tree::Formatter.new tree_ac
+
+      if @endpoint.nil?
+        tree_data=[]
+        Endpoint.roots.each{|ep|
+          tree_data+=tree_fmt.format_array(ep)
+        }
+      else
+        tree_data=tree_fmt.format_array(@endpoint)
+      end
+
+      table_ac=DataStructureFormatter::Table::Accessor.new 
+      table_ac.row_enumerator {|data| data }
+      table_ac.column_enumerator{|row|
+        [row[1], row[0].balance_at(@year,@month,@date)]
+      }
+      table_fmt=DataStructureFormatter::Table::Formatter.new(table_ac,['endpoint','balance'])
+      table_fmt.format tree_data
+    end
   end
   def define_command(name,defs=[],&block)
     @parser.define_command(name,defs,&block)

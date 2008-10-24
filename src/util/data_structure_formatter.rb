@@ -21,18 +21,28 @@ module DataStructureFormatter
       end
       def format(target)
         out=[]
-        format_impl(target,false,'','--',out)
+        format_impl(target,false,'','--',out,false)
         return out.join("\n")+"\n"
       end
-      def format_impl(target,parent_has_next_child,prefix,item_prefix,output)
+      def format_array(target)
+        out=[]
+        format_impl(target,false,'','--',out,true)
+        out
+      end
+      def format_impl(target,parent_has_next_child,prefix,item_prefix,output,include_node)
         value=@accessor.value_of(target)
-        output << prefix+item_prefix+value
+        text=prefix+item_prefix+value
+        if include_node
+          output << [ target, text ]
+        else
+          output << text
+        end
         children=@accessor.children(target).to_a
         child_prefix=prefix+(parent_has_next_child ? '| ' : '  ')
         (0...children.length-1).each{|i|
-          format_impl(children[i],true,child_prefix,'+-',output)
+          format_impl(children[i],true,child_prefix,'+-',output,include_node)
         }
-        format_impl(children.last,false,child_prefix,'L-',output) unless children.empty?
+        format_impl(children.last,false,child_prefix,'L-',output,include_node) unless children.empty?
       end
     end
   end

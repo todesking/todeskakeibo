@@ -1,5 +1,37 @@
 require 'spec/model/spec_helper.rb'
 
+describe Endpoint,'when empty' do
+  before(:all) do
+    ModelSpecHelper.setup_database
+  end
+  it '.roots should []' do
+    Endpoint.roots.should == []
+  end
+end
+
+describe Endpoint,'with some entries' do
+  before(:all) do
+    ModelSpecHelper.setup_database
+  end
+  before(:each) do
+    Endpoint.delete_all
+    ModelSpecHelper.create_nested_endpoints [
+      :stash,
+      [:bank,:stash],
+      [:wallet,:stash],
+      :expense,
+      :income,
+      [:salary,:income]
+    ]
+    ModelSpecHelper.import_endpoints self
+  end
+  it '.roots should return root entries' do
+    Endpoint.roots.length.should == 3
+    Endpoint.roots.should be_include(@stash)
+    Endpoint.roots.should_not be_include(@salary)
+  end
+end
+
 describe Endpoint,'with no transactions and no account history' do
   before(:all) do
     ModelSpecHelper.setup_database

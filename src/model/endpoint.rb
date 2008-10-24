@@ -4,6 +4,11 @@ require 'active_record'
 class Endpoint < ActiveRecord::Base
   belongs_to :parent,:class_name=>'Endpoint',:foreign_key=>:parent
   has_many :children,:class_name=>'Endpoint',:foreign_key=>:parent
+
+  def self.roots
+    find(:all,:conditions=>{:parent=>nil})
+  end
+
   def newest_account_history(date)
     raise ArgumentError.new('date must be Date object') unless date.kind_of? Date
     return AccountHistory.find(:first,:conditions=>['endpoint = ? and date <= ?',self,date],:order=>'date desc')

@@ -7,13 +7,13 @@ describe DataStructureFormatter::Tree do
     @ac=DataStructureFormatter::Tree::Accessor.new
   end
 
-  it 'should access as tree' do
+  it '::Accessor should access data as tree' do
     @ac.value_accessor {|target| target[0] }
     @ac.child_enumerator {|target| target[1] }
     @ac.value_of(@data).should == 1
     @ac.children(@data).map{|item|@ac.value_of(item)}.should == [2,3]
   end
-  it 'should format to human-readable tree structure' do
+  it '#format should format to human-readable tree structure' do
     @ac.value_accessor {|target| target[0].to_s }
     @ac.child_enumerator {|target| target[1] }
     formatter=DataStructureFormatter::Tree::Formatter.new(@ac)
@@ -25,6 +25,16 @@ describe DataStructureFormatter::Tree do
     | L-5
     L-6
 EOS
+  end
+  it '::Formatter#format_as_array should return [[tree node, formatted line]... ]' do
+    @ac.value_accessor {|target| target[0].to_s }
+    @ac.child_enumerator {|target| target[1] }
+    formatter=DataStructureFormatter::Tree::Formatter.new(@ac)
+    result=formatter.format_array(@data)
+    result[0][1].should == '--1'
+    result[0][0].should be @data
+    result[3][1].should == '    +-4'
+    result[3][0].should be @data[1][1][1][0]
   end
 end
 
