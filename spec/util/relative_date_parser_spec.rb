@@ -19,4 +19,15 @@ describe RelativeDateParser do
   it 'should parse "today"' do
     @rdp.parse('today').should be == Date.today
   end
+  it 'should parse "yesterday"' do
+    @rdp.parse('yesterday').should be == Date.today - 1
+  end
+  it 'should parse "d-n" format' do
+    @rdp.parse('d-1').should == @rdp.parse('yesterday')
+    @rdp.parse('d-3').should == Date.today - 3
+  end
+  it 'should error when unknown format' do
+    lambda{ @rdp.parse('yesterdayyy') }.should raise_error(ArgumentError)
+    lambda{ @rdp.parse('todayyy') }.should raise_error(ArgumentError)
+  end
 end
