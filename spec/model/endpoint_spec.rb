@@ -24,6 +24,10 @@ describe Endpoint,'with no transactions and no account history' do
   it '#balance_between should return 0' do
     @bank.balance_between(Date.new(2008,10,1),Date.new(2008,12,1)).should be == 0
   end
+  it '#newest_account_history should no amount in any account and any time' do
+    @wallet.newest_account_history(Date.new(2007,1,1)).should be_nil
+    @bank.newest_account_history(Date.new(2008,12,1)).should be_nil
+  end
 end
 
 describe Endpoint,'with some account histories and some transactions' do
@@ -300,5 +304,43 @@ describe Endpoint,'#balance_between with nested endpoint' do
     @wallet.balance_at(2008,10,10).should be == +9000
     @wallet.balance_at(2009,1,3).should be == -2000
     @wallet.balance_at().should == 74700
+  end
+end
+
+describe Endpoint,'#newest_account_history with some histories' do
+  before(:all) do
+    ModelSpecHelper.setup_database
+  end
+  before(:each) do
+    Endpoint.delete_all
+    ModelSpecHelper.create_nested_endpoints [
+      :bank, :wallet
+    ]
+    ModelSpecHelper.import_endpoints self
+    AccountHistory.delete_all
+    ModelSpecHelper.create_account_history [
+      [10,1,@bank,1000],
+      [10,2,@bank,2000],
+      [10,3,@bank,3000],
+      [10,4,@bank,1500]
+    ]
+  end
+  it 'should have endpoint column as Endpoint' do
+    @bank.newest_account_history(Date.new(2008,10,1)).endpoint.should be == @bank
+  end
+  it 'should error when newest_account_history called with non Date object as 2nd argument' do
+    lambda{@bank.newest_account_history(nil)}.should raise_error(ArgumentError)
+    lambda{@bank.newest_account_history('2008-10-1')}.should raise_error(ArgumentError)
+  end
+  it 'should no histories before 2008-10-01' do
+    @bank.newest_account_history(Date.new(2008,9,30)).should be_nil
+  end
+  it 'should exists the newest history upto 2008-10-03 and its date is 2008-10-03' do
+    @bank.newest_account_history(Date.new(2008,10,3)).should_not be_nil
+    @bank.newest_account_history(Date.new(2008,10,3)).date.should be == Date.new(2008,10,3)
+  end
+  it 'should exists the newest history upto 2008-10-31 and its date is 2008-10-04' do
+    @bank.newest_account_history(Date.new(2008,10,31)).should_not be_nil
+    @bank.newest_account_history(Date.new(2008,10,31)).date.should be == Date.new(2008,10,4)
   end
 end

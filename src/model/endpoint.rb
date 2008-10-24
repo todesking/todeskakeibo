@@ -4,8 +4,12 @@ require 'active_record'
 class Endpoint < ActiveRecord::Base
   belongs_to :parent,:class_name=>'Endpoint',:foreign_key=>:parent
   has_many :children,:class_name=>'Endpoint',:foreign_key=>:parent
+  def newest_account_history(date)
+    raise ArgumentError.new('date must be Date object') unless date.kind_of? Date
+    return AccountHistory.find(:first,:conditions=>['endpoint = ? and date <= ?',self,date],:order=>'date desc')
+  end
   def amount_at(at)
-    history=AccountHistory.newest_history(self,at)
+    history=newest_account_history(at)
     if history.nil?
       return 0 + balance_between(nil,at)
     else
