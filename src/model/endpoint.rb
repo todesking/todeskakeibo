@@ -25,9 +25,9 @@ class Endpoint < ActiveRecord::Base
     end
   end
   def descendants
-    result=self.children
+    result=self.children.to_a
     self.children.each{|c|
-      result << c.descendants
+      result += c.descendants
     }
     return result
   end

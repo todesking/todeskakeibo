@@ -4,7 +4,6 @@ require File.dirname(__FILE__)+'/'+'model/endpoint_alias.rb'
 require File.dirname(__FILE__)+'/'+'util/relative_date_parser.rb'
 require File.dirname(__FILE__)+'/'+'util/data_structure_formatter.rb'
 
-
 class Controller
   def type_parser
     @parser.type_parser
@@ -122,9 +121,9 @@ EOS
         table_ac=DataStructureFormatter::Table::Accessor.new 
         table_ac.row_enumerator {|data| data }
         table_ac.column_enumerator{|row|
-          [row[0].id,row[1], row[0].balance_at(@year,@month,@date)]
+          [row[0].id,row[1],row[0].aliases.map{|a|a.name}.join(',')]
         }
-        table_fmt=DataStructureFormatter::Table::Formatter.new(table_ac,['id','endpoint','balance'])
+        table_fmt=DataStructureFormatter::Table::Formatter.new(table_ac,['id','endpoint','aliases'])
         table_fmt.format data
       when 'table'
         ac=DataStructureFormatter::Table::Accessor.new

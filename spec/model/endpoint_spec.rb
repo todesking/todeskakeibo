@@ -252,6 +252,11 @@ describe Endpoint,'with nested' do
       [:food,:expense]
     ]
     ModelSpecHelper.import_endpoints self
+    Transaction.delete_all
+    ModelSpecHelper.create_transactions [
+      [9,30,@bank,@electricity_bill,50000],
+      [10,3,@bank,@wallet,5000]
+    ]
   end
   it 'should be returns collect parent' do
     @bank.parent.should be == @stash
@@ -269,6 +274,15 @@ describe Endpoint,'with nested' do
     @expense.descendants.include?(@food).should be_true
     @expense.descendants.include?(@utility_bill).should be_true
     @expense.descendants.include?(@electricity_bill).should be_true
+  end
+  it '#descendants should not currupt hierarchy' do
+    @electricity_bill.parent.id.should be @utility_bill.id
+    @expense.descendants.inject(@expense.balance_between(nil,nil,false)){|a,d|
+      a+d.balance_between(nil,nil,false)
+    }
+    @electricity_bill.reload
+    @utility_bill.reload
+    @electricity_bill.parent.id.should be @utility_bill.id
   end
 end
 

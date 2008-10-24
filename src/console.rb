@@ -7,7 +7,7 @@ puts 'loading controller...'
 require File.dirname(__FILE__)+'/'+'controller.rb'
 puts 'loading model...'
 require File.dirname(__FILE__)+'/'+'model/helper.rb'
-puts "loading time: #{Time.now-start}"
+puts "loading time: #{Time.now-start}[s]"
 puts
 
 def in_filter str
