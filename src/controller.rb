@@ -72,10 +72,16 @@ class Controller
       "enpoint \##{ep.id}(#{ep.name}) added."
     end
 
-    @parser.define_hierarchical_command(['set',['endpoint','ep'],'parent'],[ [:target,Endpoint], [:parent,Endpoint] ]) do
-      @target.parent=@parent
-      @target.save
-      "set endpoint #{@target.name}'s parent to #{@parent.name}"
+    @parser.define_hierarchical_command(['set',['endpoint','ep']],[ [:target,Endpoint], [:property,String],[:value,String] ]) do
+      case @property
+      when 'parent='
+        @parent=EndpointAlias.lookup(@value)
+        @target.parent=@parent
+        @target.save
+        "set endpoint #{@target.name}'s parent to #{@parent.name}"
+      else
+        raise 'set endpoint: unknown property'
+      end
     end
     
     define_command(['endpoint_alias','epa'],[[:alias_name,String],[:alias_for,Endpoint]]) do

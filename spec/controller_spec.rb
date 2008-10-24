@@ -178,7 +178,7 @@ describe Controller,'command' do
     @c.execute('endpoint hage')
     @c.execute('endpoint fuga')
     Endpoint.find_by_name('hage').parent.should be_nil
-    @c.execute('set endpoint parent hage fuga')
+    @c.execute('set endpoint hage parent= fuga')
     Endpoint.find_by_name('hage').parent.should == Endpoint.find_by_name('fuga')
   end
 end
