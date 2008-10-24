@@ -71,6 +71,12 @@ class Controller
       ep.save
       "enpoint \##{ep.id}(#{ep.name}) added."
     end
+
+    @parser.define_hierarchical_command(['set',['endpoint','ep'],'parent'],[ [:target,Endpoint], [:parent,Endpoint] ]) do
+      @target.parent=@parent
+      @target.save
+      "set endpoint #{@target.name}'s parent to #{@parent.name}"
+    end
     
     define_command(['endpoint_alias','epa'],[[:alias_name,String],[:alias_for,Endpoint]]) do
       epa=EndpointAlias.new(:name=>@alias_name,:endpoint=>@alias_for)

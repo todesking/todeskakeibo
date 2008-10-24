@@ -174,4 +174,11 @@ describe Controller,'command' do
     @c.execute('delete endpoint_alias '+id.to_s)
     EndpointAlias.find_by_id(id).should be_nil
   end
+  it 'set endpoint parent should set endpoint\'s parent' do
+    @c.execute('endpoint hage')
+    @c.execute('endpoint fuga')
+    Endpoint.find_by_name('hage').parent.should be_nil
+    @c.execute('set endpoint parent hage fuga')
+    Endpoint.find_by_name('hage').parent.should == Endpoint.find_by_name('fuga')
+  end
 end
