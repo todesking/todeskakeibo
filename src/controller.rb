@@ -144,7 +144,7 @@ EOS
         [row.id,row.date.to_s,row.src.name,row.dest.name,row.amount,row.description]
       }
       fmt=DataStructureFormatter::Table::Formatter.new ac,['id','date','src','dest','amount','descr.']
-      fmt.format(Transaction.find(:all))
+      fmt.format(Transaction.find(:all,:order=>'date'))
     end
 
     define_command(['account_histories','ahs']) do
@@ -154,7 +154,7 @@ EOS
         [row.id,row.date.to_s,row.endpoint.name,row.amount]
       }
       fmt=DataStructureFormatter::Table::Formatter.new ac,['id','date','endpoint','amount']
-      fmt.format(AccountHistory.find(:all))
+      fmt.format(AccountHistory.find(:all,:order=>'date'))
     end
   end
   def define_command(name,defs=[],&block)
