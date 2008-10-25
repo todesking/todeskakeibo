@@ -1,6 +1,9 @@
 require 'spec/model/spec_helper.rb'
 
 describe EndpointAlias,'when empty' do
+  before(:all) do
+    ModelSpecHelper.setup_database
+  end
   before(:each) do
   end
   it 'should return nil for any name' do
@@ -9,6 +12,9 @@ describe EndpointAlias,'when empty' do
 end
 
 describe EndpointAlias,'when some aliases' do
+  before(:all) do
+    ModelSpecHelper.setup_database
+  end
   before(:each) do
     Endpoint.delete_all
     ModelSpecHelper.create_nested_endpoints [

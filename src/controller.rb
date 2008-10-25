@@ -78,10 +78,13 @@ class Controller
         @parent=EndpointAlias.lookup(@value)
         @target.parent=@parent
         @target.save
-        "set endpoint #{@target.name}'s parent to #{@parent.name}"
+      when 'name='
+        @target.name=@value
+        @target.save
       else
         raise 'set endpoint: unknown property'
       end
+      "set endpoint #{@target.name} #{@property} #{@value}"
     end
     
     define_command(['endpoint_alias','epa'],[[:alias_name,String],[:alias_for,Endpoint]]) do
@@ -91,7 +94,6 @@ class Controller
     end
 
     # define commands(untestable, most of is 'show' command)
-    
     define_command(['help','h','he','?'],[ [:arg,String,{:default=>nil}] ]) do
       unless @arg.nil?
         cmd=parser.command(@arg)
