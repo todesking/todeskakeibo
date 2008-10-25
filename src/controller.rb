@@ -153,14 +153,38 @@ EOS
       end
     end
 
-    define_command(['transactions','trs']) do
+    define_command(['transactions','trs'],[ [:range,String,{:default=>nil}] ]) do
       ac=DataStructureFormatter::Table::Accessor.new
       ac.row_enumerator {|data| data}
       ac.column_enumerator {|row|
         [row.id,row.date.to_s,row.src.name,row.dest.name,row.amount,row.description]
       }
       fmt=DataStructureFormatter::Table::Formatter.new ac,['id','date','src','dest','amount','descr.']
-      fmt.format(Transaction.find(:all,:order=>'date'))
+      today=Date.today
+      case @range
+      when nil
+        start=Date.new(today.year,today.month,1)
+        range=start..((start >> 1) - 1)
+      when /^(\d{1,2})$/
+        month=$1.to_i
+        start=Date.new(today.year,month,1)
+        range=start..((start >> 1) - 1)
+      else
+        if Date::MONTHNAMES.include? @range
+          month=Date::MONTHNAMES.index @range
+          start=Date.new(today.year,month,1)
+          range=start..((start >> 1) - 1)
+        elsif Date::ABBR_MONTHNAMES.include? @range
+          month=Date::ABBR_MONTHNAMES.index @range
+          start=Date.new(today.year,month,1)
+          range=start..((start >> 1) - 1)
+        else
+          raise ArgumentError.new("invalid range format: #{@range}")
+        end
+      end
+      range_str="#{range.first.to_s} - #{range.last.to_s}"
+      body=fmt.format(Transaction.find(:all,:conditions=>{:date=>range},:order=>'date'))
+      [range_str,body].join("\n")
     end
 
     define_command(['account_histories','ahs']) do
