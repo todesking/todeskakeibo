@@ -459,4 +459,16 @@ describe Endpoint,'with transactions' do
     @income.expense_between(nil,nil).should == 3000
     @stash.expense_between(nil,nil).should == 4000
   end
+  it '#income_at should return income at specified date/month/year' do
+    @bank.income_at(2008,9,1).should == 1000
+    @bank.income_at(2008,9,2).should == 0
+    @bank.income_at(2008,9).should == 1000
+    @bank.income_at(2008).should == 1000
+  end
+  it '#expense_at should return expense at specified date/month/year' do
+    @bank.expense_at(2008,9,1).should == 0
+    @bank.expense_at(2008,9,2).should == 500
+    @bank.expense_at(2008,9).should == 2000
+    @bank.expense_at(2008).should == 2000
+  end
 end

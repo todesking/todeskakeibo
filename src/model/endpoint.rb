@@ -2,6 +2,7 @@ require 'rubygems'
 require 'active_record'
 
 require File.dirname(__FILE__)+'/'+'endpoint_alias.rb'
+require File.dirname(__FILE__)+'/'+'../util/helper.rb'
 
 class Endpoint < ActiveRecord::Base
   belongs_to :parent,:class_name=>'Endpoint',:foreign_key=>:parent
@@ -39,15 +40,26 @@ class Endpoint < ActiveRecord::Base
   def balance_at(year=nil,month=nil,day=nil,include_subendpoint=true)
     raise ArgumentError('day argument must nil when month==nil') if month.nil? && !day.nil?
 
-    if year.nil?
-      balance_between(nil,nil,include_subendpoint)
-    elsif month.nil?
-      balance_between(Date.new(year,1,1),Date.new(year+1,1,1)-1,include_subendpoint)
-    elsif day.nil?
-      balance_between(Date.new(year,month,1),(Date.new(year,month,1) >> 1)-1,include_subendpoint)
-    else
-      balance_between(Date.new(year,month,day),Date.new(year,month,day),include_subendpoint)
-    end
+    return balance_between(nil,nil,include_subendpoint) if year.nil?
+
+    range=Helper.create_date_range(year,month,day)
+    return balance_between(range.first,range.last,include_subendpoint)
+  end
+  def income_at(year=nil,month=nil,day=nil,include_subendpoint=true)
+    raise ArgumentError('day argument must nil when month==nil') if month.nil? && !day.nil?
+
+    return income_between(nil,nil,include_subendpoint) if year.nil?
+
+    range=Helper.create_date_range(year,month,day)
+    return income_between(range.first,range.last,include_subendpoint)
+  end
+  def expense_at(year=nil,month=nil,day=nil,include_subendpoint=true)
+    raise ArgumentError('day argument must nil when month==nil') if month.nil? && !day.nil?
+
+    return expense_between(nil,nil,include_subendpoint) if year.nil?
+
+    range=Helper.create_date_range(year,month,day)
+    return expense_between(range.first,range.last,include_subendpoint)
   end
   def transaction_amount(from,to,include_subendpoint,direction)
     raise ArgumentError.new('from > to') unless from.nil? || to.nil? || from <= to
