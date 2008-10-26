@@ -146,7 +146,14 @@ describe Endpoint,'#balance_between with some transactions' do
   before(:each) do
     Endpoint.delete_all
     ModelSpecHelper.create_nested_endpoints [
-      :bank, :wallet, :food, :house_rent, :office
+      :stash,
+      [:bank,:stash],
+      [:wallet,:stash],
+      :expense,
+      [:food,:expense],
+      [:house_rent,:expense],
+      :income,
+      [:salary,:income]
     ]
     ModelSpecHelper.import_endpoints self
     Transaction.delete_all
@@ -154,7 +161,7 @@ describe Endpoint,'#balance_between with some transactions' do
       [9,29,@bank,@wallet,10000],
       [9,30,@wallet,@food,2000],
       [10,1,@wallet,@bank,20000],
-      [10,2,@office,@bank,100000],
+      [10,2,@salary,@bank,100000],
       [10,2,@bank,@house_rent,50000],
       [10,2,@bank,@wallet,15000],
       [10,4,@wallet,@food,2500]
@@ -181,7 +188,7 @@ describe Endpoint,'#balance_between with some transactions' do
     assert_balance_between(@wallet     , a , b , +10000 )
     assert_balance_between(@food       , a , b , 0      )
     assert_balance_between(@house_rent , a , b , 0      )
-    assert_balance_between(@office     , a , b , 0      )
+    assert_balance_between(@salary     , a , b , 0      )
   end
   it 'should right balance at 9-29 to 9-30' do
     a=Date.new(2008,9,29)
@@ -190,7 +197,7 @@ describe Endpoint,'#balance_between with some transactions' do
     assert_balance_between(@wallet     , a , b , +8000  )
     assert_balance_between(@food       , a , b , +2000  )
     assert_balance_between(@house_rent , a , b , 0      )
-    assert_balance_between(@office     , a , b , 0      )
+    assert_balance_between(@salary     , a , b , 0      )
   end
   it 'should right balance at 9-29 to 10-01' do
     a=Date.new(2008,9,29)
@@ -199,7 +206,7 @@ describe Endpoint,'#balance_between with some transactions' do
     assert_balance_between(@wallet     , a , b , -12000 )
     assert_balance_between(@food       , a , b , +2000  )
     assert_balance_between(@house_rent , a , b , 0      )
-    assert_balance_between(@office     , a , b , 0      )
+    assert_balance_between(@salary     , a , b , 0      )
   end
   it 'should right balance at 9-29 to 10-02' do
     a=Date.new(2008,9,29)
@@ -208,7 +215,7 @@ describe Endpoint,'#balance_between with some transactions' do
     assert_balance_between(@wallet     , a , b , +3000   )
     assert_balance_between(@food       , a , b , +2000   )
     assert_balance_between(@house_rent , a , b , +50000  )
-    assert_balance_between(@office     , a , b , -100000 )
+    assert_balance_between(@salary     , a , b , -100000 )
   end
   it 'should right balance at 9-29 to 10-03, its same as 9-29 to 10-02' do
     a=Date.new(2008,9,29)
@@ -217,7 +224,7 @@ describe Endpoint,'#balance_between with some transactions' do
     assert_balance_between(@wallet     , a , b , +3000   )
     assert_balance_between(@food       , a , b , +2000   )
     assert_balance_between(@house_rent , a , b , +50000  )
-    assert_balance_between(@office     , a , b , -100000 )
+    assert_balance_between(@salary     , a , b , -100000 )
   end
   it 'should right balance at 9-29 to 10-04' do
     a=Date.new(2008,9,29)
@@ -226,7 +233,7 @@ describe Endpoint,'#balance_between with some transactions' do
     assert_balance_between(@wallet     , a , b , +500    )
     assert_balance_between(@food       , a , b , +4500   )
     assert_balance_between(@house_rent , a , b , +50000  )
-    assert_balance_between(@office     , a , b , -100000 )
+    assert_balance_between(@salary     , a , b , -100000 )
   end
   it 'should accept nil for from and to argument' do
     assert_balance_between(@bank ,  nil                 ,  Date.new(2008,10,4 ) ,  +45000)
@@ -431,6 +438,7 @@ describe Endpoint,'with transactions' do
     @income.transactions.length.should == 2
     @stash.transactions.length.should == 4 #including sub endpoint by default
   end
+
   it '#transactions should return relative transactions in specified date range' do
     @bank.transactions(Date.new(2008,9,1)...Date.new(2008,9,1)).to_a.length.should == 0
     @bank.transactions(Date.new(2008,9,1)..Date.new(2008,9,1)).to_a.length.should == 1
@@ -439,5 +447,16 @@ describe Endpoint,'with transactions' do
     @bank.transactions(Date.new(2008,9,1)..Date.new(2008,9,3)).to_a.length.should == 2
     @bank.transactions(Date.new(2008,9,1)..Date.new(2008,9,4)).to_a.length.should == 3
     @bank.transactions(Date.new(2008,9,1)..Date.new(2008,9,5)).to_a.length.should == 3
+  end
+
+  it '#income_between should return sum of incomes' do
+    @bank.income_between(nil,nil).should == 1000
+    @income.income_between(nil,nil).should == 0
+    @stash.income_between(nil,nil).should == 1000
+  end
+  it '#expense_between should return sub of expenses' do
+    @bank.expense_between(nil,nil).should == 2000
+    @income.expense_between(nil,nil).should == 3000
+    @stash.expense_between(nil,nil).should == 4000
   end
 end

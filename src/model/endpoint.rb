@@ -33,26 +33,8 @@ class Endpoint < ActiveRecord::Base
   end
   # note: from,to is Date, inclusive
   def balance_between(from,to,include_subendpoint=true)
-    raise ArgumentError.new('from > to') unless from.nil? || to.nil? || from <= to
-
-    if include_subendpoint
-      return descendants.inject(balance_between(from,to,false)){|a,d|
-        a+d.balance_between(from,to,false)
-      }
-    end
-
-    cond_str='%s = ?'
-    cond_str+=' and ? <= date' unless from.nil?
-    cond_str+=' and date <= ?' unless to.nil?
-    cond=['dummy']
-    cond.push self
-    cond.push from unless from.nil?
-    cond.push to unless to.nil?
-    cond[0]=cond_str%'src'
-    expenses=Transaction.sum('amount',:conditions=>cond)
-    cond[0]=cond_str%'dest'
-    income=Transaction.sum('amount',:conditions=>cond)
-    return income - expenses
+    # this is slightly slow maybe, but speed is not matter in this case
+    return income_between(from,to,include_subendpoint)-expense_between(from,to,include_subendpoint)
   end
   def balance_at(year=nil,month=nil,day=nil,include_subendpoint=true)
     raise ArgumentError('day argument must nil when month==nil') if month.nil? && !day.nil?
@@ -66,6 +48,37 @@ class Endpoint < ActiveRecord::Base
     else
       balance_between(Date.new(year,month,day),Date.new(year,month,day),include_subendpoint)
     end
+  end
+  def transaction_amount(from,to,include_subendpoint,direction)
+    raise ArgumentError.new('from > to') unless from.nil? || to.nil? || from <= to
+
+    endpoints=[self]
+    endpoints+=descendants if include_subendpoint
+
+    cond_str=case direction
+             when :src
+              'src in (?) and dest not in(?)'
+             when :dest
+              'src not in (?) and dest in(?)'
+             else
+               raise ArgumentError.new('unknown direction')
+             end
+    cond=[nil,endpoints,endpoints]
+
+    cond_str+=' and ? <= date' unless from.nil?
+    cond.push from unless from.nil?
+
+    cond_str+=' and date <= ?' unless to.nil?
+    cond.push to unless to.nil?
+
+    cond[0]=cond_str
+    return Transaction.sum('amount',:conditions=>cond)
+  end
+  def income_between(from,to,include_subendpoint=true)
+    transaction_amount(from,to,include_subendpoint,:dest)
+  end
+  def expense_between(from,to,include_subendpoint=true)
+    transaction_amount(from,to,include_subendpoint,:src)
   end
   def transactions(date_range=nil)
     if date_range.nil?
