@@ -225,10 +225,13 @@ EOS
       table_ac=DataStructureFormatter::Table::Accessor.new 
       table_ac.row_enumerator {|data| data }
       table_ac.column_enumerator{|row|
-        [row[1], row[0].balance_at(@year,@month,@date)]
+        [row[1], row[0].balance_at(@year,@month,@date),row[0].expense_at(@year,@month,@date),row[0].income_at(@year,@month,@date)]
       }
-      table_fmt=DataStructureFormatter::Table::Formatter.new(table_ac,['endpoint','balance'])
-      table_fmt.format tree_data
+      table_fmt=DataStructureFormatter::Table::Formatter.new(table_ac,['endpoint','balance','expense','income'])
+      ep_name=@endpoint.nil? ? 'all endpoints' : @endpoint.name
+      range_str=@year.nil? ? "times" : [@year,@month,@date].join(' ')
+      ["balance of #{ep_name} at #{range_str}",
+        table_fmt.format(tree_data)].join("\n")
     end
   end
   def define_command(name,defs=[],&block)

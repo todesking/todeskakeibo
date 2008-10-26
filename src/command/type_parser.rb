@@ -3,7 +3,7 @@ class TypeParser
     @mapping={}
   end
   def parse(str,type)
-    return nil if str=='nil'
+    return nil if str=='*'
     if @mapping.has_key? type
       @mapping[type].call str
     else

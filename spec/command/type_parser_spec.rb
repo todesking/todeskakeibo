@@ -17,9 +17,9 @@ describe TypeParser,'by default' do
   it 'should error when unknown date format' do
     lambda{@tp.parse('200801010',Date)}.should raise_error(ArgumentError)
   end
-  it 'should nil when parsing "nil" string' do
-    @tp.parse('nil',Numeric).should be_nil
-    @tp.parse('nil',String).should be_nil
+  it 'should nil when parsing "*"' do
+    @tp.parse('*',Numeric).should be_nil
+    @tp.parse('*',String).should be_nil
   end
 end
 
