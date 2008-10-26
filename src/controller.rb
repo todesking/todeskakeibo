@@ -185,10 +185,11 @@ EOS
       end
       range_str="#{range.first.to_s} - #{range.last.to_s}"
       conditions=[]
-      #todo: impl it
-      conditions << ['date between ?',range]
-      conditions << ['endpoint in ?',[@endpoint]+@endpoint.descendants] unless @endpoint.nil?
-      body=fmt.format(Transaction.find(:all,:conditions=>nil,:order=>'date'))
+      if @endpoint.nil?
+        body=fmt.format(Transaction.find(:all,:conditions=>{:date=>range},:order=>'date'))
+      else
+        body=fmt.format(@endpoint.transactions(range))
+      end
       [range_str,body].join("\n")
     end
 
