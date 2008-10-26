@@ -400,3 +400,44 @@ describe Endpoint,'#newest_account_history with some histories' do
     @bank.newest_account_history(Date.new(2008,10,31)).date.should be == Date.new(2008,10,4)
   end
 end
+
+describe Endpoint,'with transactions' do
+  before(:all) do
+    ModelSpecHelper.setup_database
+  end
+  before(:each) do
+    Endpoint.delete_all
+    ModelSpecHelper.create_nested_endpoints [
+      :stash,
+      [:bank,:stash],
+      [:wallet,:stash],
+      :expense,
+      :income
+    ]
+    ModelSpecHelper.import_endpoints self
+    Transaction.delete_all
+    ModelSpecHelper.create_transactions [
+      [9,1,@income,@bank,1000],
+      [9,2,@bank,@wallet,500],
+      [9,3,@wallet,@expense,2500],
+      [9,4,@bank,@expense,1500],
+      [9,5,@income,@expense,2000]
+    ]
+  end
+
+  it '#transactions should return relative transactions' do
+    @bank.transactions.length.should == 3
+    @wallet.transactions.length.should == 2
+    @income.transactions.length.should == 2
+    @stash.transactions.length.should == 4 #including sub endpoint by default
+  end
+  it '#transactions should return relative transactions in specified date range' do
+    @bank.transactions(Date.new(2008,9,1)...Date.new(2008,9,1)).to_a.length.should == 0
+    @bank.transactions(Date.new(2008,9,1)..Date.new(2008,9,1)).to_a.length.should == 1
+    @bank.transactions(Date.new(2008,9,1)...Date.new(2008,9,2)).to_a.length.should == 1
+    @bank.transactions(Date.new(2008,9,1)..Date.new(2008,9,2)).to_a.length.should == 2
+    @bank.transactions(Date.new(2008,9,1)..Date.new(2008,9,3)).to_a.length.should == 2
+    @bank.transactions(Date.new(2008,9,1)..Date.new(2008,9,4)).to_a.length.should == 3
+    @bank.transactions(Date.new(2008,9,1)..Date.new(2008,9,5)).to_a.length.should == 3
+  end
+end

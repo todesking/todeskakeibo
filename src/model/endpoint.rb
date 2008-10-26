@@ -67,4 +67,16 @@ class Endpoint < ActiveRecord::Base
       balance_between(Date.new(year,month,day),Date.new(year,month,day),include_subendpoint)
     end
   end
+  def transactions(date_range=nil)
+    if date_range.nil?
+      return Transaction.find(:all,:conditions=>['src in (:eps) or dest in (:eps)',{:eps=>[self]+self.descendants}],:order=>:date)
+    else
+      date_start=date_range.first
+      date_end=date_range.last
+      date_end-=1 if date_range.exclude_end?
+      return [] if date_start > date_end
+      Transaction.find(:all,:conditions=>['date between :date_start and :date_end and (src in (:eps) or dest in (:eps))',
+                       {:date_start=>date_start,:date_end=>date_end, :eps=>[self]+self.descendants}],:order=>:date)
+    end
+  end
 end

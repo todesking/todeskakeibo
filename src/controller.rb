@@ -153,13 +153,14 @@ EOS
       end
     end
 
-    define_command(['transactions','trs'],[ [:range,String,{:default=>nil}] ]) do
+    define_command(['transactions','trs'],[ [:range,String,{:default=>nil}], [:endpoint,Endpoint,{:default=>nil}]]) do
       ac=DataStructureFormatter::Table::Accessor.new
       ac.row_enumerator {|data| data}
       ac.column_enumerator {|row|
         [row.id,row.date.to_s,row.src.name,row.dest.name,row.amount,row.description]
       }
       fmt=DataStructureFormatter::Table::Formatter.new ac,['id','date','src','dest','amount','descr.']
+      # TODO: separate and testable berrow logic
       today=Date.today
       case @range
       when nil
@@ -183,7 +184,11 @@ EOS
         end
       end
       range_str="#{range.first.to_s} - #{range.last.to_s}"
-      body=fmt.format(Transaction.find(:all,:conditions=>{:date=>range},:order=>'date'))
+      conditions=[]
+      #todo: impl it
+      conditions << ['date between ?',range]
+      conditions << ['endpoint in ?',[@endpoint]+@endpoint.descendants] unless @endpoint.nil?
+      body=fmt.format(Transaction.find(:all,:conditions=>nil,:order=>'date'))
       [range_str,body].join("\n")
     end
 
