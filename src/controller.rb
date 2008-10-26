@@ -123,6 +123,24 @@ EOS
       lines.join("\n")
     end
 
+    define_command(['missing-transactions','mtrs'],[]) do
+      require 'pp'
+      ep_ids_in_ah=AccountHistory.connection.execute('select distinct endpoint as endpoint from account_histories').map{|eid|eid['endpoint'].to_i}
+      missing=[]
+      Endpoint.find(ep_ids_in_ah).each{|ep|
+        ahs=AccountHistory.find_all_by_endpoint(ep,:order=>:date)
+        (1...ahs.length).each{|i|
+          before=ahs[i-1]
+          current=ahs[i]
+          diff=current.amount - (before.amount+ep.balance_between(before.date,current.date-1))
+          missing.push([ep.name,current.date-1,diff]) if diff!=0
+        }
+      }
+      next 'nothing' if missing.empty?
+      "endpoint\tdate\tdiff\n"+
+      missing.map{|m|m.join("\t")}.join("\n")
+    end
+
     define_command(['endpoints','eps'],[ [:format_type,String,{:default=>'tree'}] ]) do
       case @format_type
       when 'tree'
@@ -166,6 +184,8 @@ EOS
       when nil
         start=Date.new(today.year,today.month,1)
         range=start..((start >> 1) - 1)
+      when 'all'
+        range=nil
       when /^(\d{1,2})$/
         month=$1.to_i
         start=Date.new(today.year,month,1)
@@ -183,10 +203,12 @@ EOS
           raise ArgumentError.new("invalid range format: #{@range}")
         end
       end
-      range_str="#{range.first.to_s} - #{range.last.to_s}"
-      conditions=[]
+      range_str="#{range.first.to_s} - #{range.last.to_s}" if !range.nil?
+      range_str="all" if range.nil?
+      conditions={}
+      conditions[:date]=range if !range.nil?
       if @endpoint.nil?
-        body=fmt.format(Transaction.find(:all,:conditions=>{:date=>range},:order=>'date'))
+        body=fmt.format(Transaction.find(:all,:conditions=>conditions,:order=>'date'))
       else
         body=fmt.format(@endpoint.transactions(range))
       end
