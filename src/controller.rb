@@ -26,6 +26,10 @@ class Controller
       @date_parser.parse(date)
     }
 
+    @parser.type_parser.define_mapping(Transaction) {|id|
+      Transaction.find(Integer(id))
+    }
+
     # define commands
     define_command(['base_date','bd'],[[:date,Date,{:default=>nil}]]) do
       if @date.nil?
@@ -85,6 +89,27 @@ class Controller
         raise 'set endpoint: unknown property'
       end
       "set endpoint #{@target.name} #{@property} #{@value}"
+    end
+
+    @parser.define_hierarchical_command(['set',['transaction','tr']],[ [:target,Transaction],[:property,String],[:value,String] ]) do
+      raise ArgumentError.new("target not found") if @target.nil?
+      case @property
+      when 'src='
+        @target.src=parser.type_parser.parse(@value,Endpoint)
+        @target.save
+      when 'dest='
+        @target.src=parser.type_parser.parse(@value,Endpoint)
+        @target.save
+      when 'amount='
+        @target.amount=parser.type_parser.parse(@value,Numeric)
+        @target.save
+      when 'date='
+        @target.date=parser.type_parser.parse(@value,Date)
+        @target.save
+      else
+        raise ArgumentError.new("unknown property: #{@property}")
+      end
+      "set transaction #{@target.id} #{@property} #{@value}"
     end
     
     define_command(['endpoint_alias','epa'],[[:alias_name,String],[:alias_for,Endpoint]]) do

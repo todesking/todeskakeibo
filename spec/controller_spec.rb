@@ -34,6 +34,9 @@ describe Controller,'#type_parser' do
     ModelSpecHelper.create_endpoint_aliases [
       [:w,@wallet]
     ]
+    ModelSpecHelper.create_transactions [
+      [10,1,@wallet,@bank,10000]
+    ]
   end
 
   it 'should defined and not nil' do
@@ -50,6 +53,10 @@ describe Controller,'#type_parser' do
 
   it 'should error when parsing Endpoint with unknown name' do
     lambda { @c.type_parser.parse('undef',Endpoint) }.should raise_error(ArgumentError)
+  end
+
+  it 'should parse Transaction by id' do
+    @c.type_parser.parse('1',Transaction).id.should == 1
   end
 end
 
@@ -174,10 +181,10 @@ describe Controller,'command' do
     @c.execute('delete endpoint_alias '+id.to_s)
     EndpointAlias.find_by_id(id).should be_nil
   end
-  it 'set endpoint' do
+  it 'should set endpoint\'s parent and name' do
     @c.execute('endpoint hage')
     @c.execute('endpoint fuga')
-    Endpoint.find_by_name('hage').parent.should be_nil
+    
     @c.execute('set endpoint hage parent= fuga')
     Endpoint.find_by_name('hage').parent.should == Endpoint.find_by_name('fuga')
 
@@ -185,5 +192,38 @@ describe Controller,'command' do
     @c.execute('set endpoint hage name= hoge')
     Endpoint.find_by_name('hage').should be_nil
     Endpoint.find_by_name('hoge').should_not be_nil
+  end
+  it 'should set transaction\'s src/dest/amount/date' do
+    @c.execute([
+               'endpoint super food',
+               'endpoint snack food',
+               'transaction 20081001 wallet super 500 comment'
+    ])
+    t=Transaction.find(:first)
+    t.src.name.should == 'wallet'
+    t.id.should == 1
+    @c.execute('set transaction 1 src= bank')
+    Transaction.find(:first).src.name.should =='bank'
+
+    #set src endpoint by alias
+    t=Transaction.find(:first)
+    t.src.name.should == 'bank'
+    @c.execute('set transaction 1 src= w')
+    Transaction.find(:first).src.name.should =='wallet'
+
+    t=Transaction.find(:first)
+    t.dest.name.should == 'super'
+    @c.execute('set transaction 1 dest= super')
+    Transaction.find(:first).dest.name.should =='super'
+
+    t=Transaction.find(:first)
+    t.amount.should == 500
+    @c.execute('set transaction 1 amount= 1000')
+    Transaction.find(:first).amount.should == 1000
+
+    t=Transaction.find(:first)
+    t.date.should == Date.new(2008,10,1)
+    @c.execute('set transaction 1 date= 20080911')
+    Transaction.find(:first).date.should == Date.new(2008,9,11)
   end
 end
