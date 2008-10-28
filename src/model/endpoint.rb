@@ -13,6 +13,13 @@ class Endpoint < ActiveRecord::Base
     find(:all,:conditions=>{:parent=>nil})
   end
 
+  def self.lookup(name)
+    endpoint=nil
+    a=EndpointAlias.find_by_name(name)
+    return a.endpoint unless a.nil?
+    return Endpoint.find_by_name(name)
+  end
+
   def newest_account_history(date)
     raise ArgumentError.new('date must be Date object') unless date.kind_of? Date
     return AccountHistory.find(:first,:conditions=>['endpoint = ? and date <= ?',self,date],:order=>'date desc')

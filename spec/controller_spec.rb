@@ -142,9 +142,9 @@ describe Controller,'command' do
   end
 
   it 'endpoint_alias should add endpoint alias' do
-    EndpointAlias.lookup('f').should be_nil
+    Endpoint.lookup('f').should be_nil
     @c.execute('endpoint_alias f food')
-    EndpointAlias.lookup('f').should be == @food
+    Endpoint.lookup('f').should be == @food
   end
 
   it 'delete transaction should delete the transaction' do

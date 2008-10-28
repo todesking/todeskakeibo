@@ -17,7 +17,7 @@ class Controller
 
     # define argument types
     @parser.type_parser.define_mapping(Endpoint) {|ep_name|
-      ep=EndpointAlias.lookup(ep_name)
+      ep=Endpoint.lookup(ep_name)
       raise ArgumentError.new("unknown endpoint name: #{ep_name}") if ep.nil?
       ep
     }
@@ -79,7 +79,7 @@ class Controller
     @parser.define_hierarchical_command(['set',['endpoint','ep']],[ [:target,Endpoint], [:property,String],[:value,String] ]) do
       case @property
       when 'parent='
-        @parent=EndpointAlias.lookup(@value)
+        @parent=Endpoint.lookup(@value)
         @target.parent=@parent
         @target.save
       when 'name='
@@ -203,7 +203,7 @@ EOS
         [row.id,row.date.to_s,row.src.name,row.dest.name,row.amount,row.description]
       }
       fmt=DataStructureFormatter::Table::Formatter.new ac,['id','date','src','dest','amount','descr.']
-      # TODO: separate and testable berrow logic
+      # TODO: separate and testable this daterange parse logic
       today=Date.today
       case @range
       when nil

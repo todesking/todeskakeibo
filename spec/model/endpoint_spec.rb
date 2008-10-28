@@ -7,6 +7,41 @@ describe Endpoint,'when empty' do
   it '.roots should []' do
     Endpoint.roots.should == []
   end
+  it '#lookup should return nil for any name' do
+    Endpoint.lookup('hoge').should be_nil
+  end
+end
+
+describe Endpoint,'with aliases' do
+  before(:all) do
+    ModelSpecHelper.setup_database
+  end
+  before(:each) do
+    Endpoint.delete_all
+    ModelSpecHelper.create_nested_endpoints [
+      :stash,
+      [:wallet,:stash],
+      [:bank,:stash]
+    ]
+    ModelSpecHelper.import_endpoints self
+    EndpointAlias.delete_all
+    ModelSpecHelper.create_endpoint_aliases [
+      [:wa,@wallet],
+      [:w,@wallet],
+      [:b,@bank]
+    ]
+  end
+  it 'should lookup correct endpoint' do
+    Endpoint.lookup('wa').should be == @wallet
+    Endpoint.lookup('w').should be == @wallet
+    Endpoint.lookup('b').should be == @bank
+  end
+  it 'should lookup endpoint by endpoint\'s real name(not alias name)' do
+    Endpoint.lookup('wallet').should be == @wallet
+  end
+  it 'should return nil when unknown alias/real name passed' do
+    Endpoint.lookup('hage').should be_nil
+  end
 end
 
 describe Endpoint,'with some entries' do
