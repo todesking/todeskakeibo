@@ -1,4 +1,4 @@
-class RelativeDateParser
+class DateParser
   def initialize base_date=Date.new
     @base_date=base_date
   end

@@ -1,7 +1,7 @@
 require File.dirname(__FILE__)+'/'+'command/command_parser.rb'
 require File.dirname(__FILE__)+'/'+'model/transaction.rb'
 require File.dirname(__FILE__)+'/'+'model/endpoint_alias.rb'
-require File.dirname(__FILE__)+'/'+'util/relative_date_parser.rb'
+require File.dirname(__FILE__)+'/'+'util/date_parser.rb'
 require File.dirname(__FILE__)+'/'+'util/data_structure_formatter.rb'
 
 class Controller
@@ -10,7 +10,7 @@ class Controller
   end
   def initialize
     @parser=CommandParser.new
-    @date_parser=RelativeDateParser.new
+    @date_parser=DateParser.new
     parser=@parser
     date_parser=@date_parser
     date_parser.base_date=Date.today

@@ -1,8 +1,8 @@
-require File.dirname(__FILE__)+'/'+'../../src/util/relative_date_parser.rb'
+require File.dirname(__FILE__)+'/'+'../../src/util/date_parser.rb'
 
-describe RelativeDateParser do
+describe DateParser do
   before(:each) do
-    @rdp=RelativeDateParser.new
+    @rdp=DateParser.new
   end
   it 'should can set base date' do
     @rdp.base_date=Date.new #only check no-error
