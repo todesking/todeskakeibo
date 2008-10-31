@@ -38,19 +38,8 @@ class Endpoint < ActiveRecord::Base
   end
   # note: from,to is Date, inclusive
   def balance(range,include_subendpoint=true)
-    if range.nil?
-      from=nil
-      to=nil
-    elsif range.instance_of? Date
-      from=range
-      to=range
-    else #range
-      from=range.first
-      to=range.last
-      to-=1 if range.exclude_end?
-    end
     # this is slightly slow maybe, but speed is not matter in this case
-    return income_between(from,to,include_subendpoint)-expense_between(from,to,include_subendpoint)
+    return income(range,include_subendpoint)-expense(range,include_subendpoint)
   end
   def balance_at(year=nil,month=nil,day=nil,include_subendpoint=true)
     raise ArgumentError('day argument must nil when month==nil') if month.nil? && !day.nil?
@@ -76,7 +65,18 @@ class Endpoint < ActiveRecord::Base
     range=Helper.create_date_range(year,month,day)
     return expense_between(range.first,range.last,include_subendpoint)
   end
-  def transaction_amount(from,to,include_subendpoint,direction)
+  def transaction_amount(range,include_subendpoint,direction)
+    if range.nil?
+      from=nil
+      to=nil
+    elsif range.instance_of? Date
+      from=range
+      to=range
+    else #range
+      from=range.first
+      to=range.last
+      to-=1 if range.exclude_end?
+    end
     raise ArgumentError.new('from > to') unless from.nil? || to.nil? || from <= to
 
     endpoints=[self]
@@ -101,11 +101,11 @@ class Endpoint < ActiveRecord::Base
     cond[0]=cond_str
     return Transaction.sum('amount',:conditions=>cond)
   end
-  def income_between(from,to,include_subendpoint=true)
-    transaction_amount(from,to,include_subendpoint,:dest)
+  def income(range,include_subendpoint=true)
+    transaction_amount(range,include_subendpoint,:dest)
   end
-  def expense_between(from,to,include_subendpoint=true)
-    transaction_amount(from,to,include_subendpoint,:src)
+  def expense(range,include_subendpoint=true)
+    transaction_amount(range,include_subendpoint,:src)
   end
   def transactions(date_range=nil)
     if date_range.nil?

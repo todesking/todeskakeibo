@@ -479,26 +479,26 @@ describe Endpoint,'with transactions' do
     @bank.transactions(Date.new(2008,9,1)..Date.new(2008,9,5)).to_a.length.should == 3
   end
 
-  it '#income_between should return sum of incomes' do
-    @bank.income_between(nil,nil).should == 1000
-    @income.income_between(nil,nil).should == 0
-    @stash.income_between(nil,nil).should == 1000
+  it '#incomeshould return sum of incomes' do
+    @bank.income(nil).should == 1000
+    @income.income(nil).should == 0
+    @stash.income(nil).should == 1000
   end
-  it '#expense_between should return sub of expenses' do
-    @bank.expense_between(nil,nil).should == 2000
-    @income.expense_between(nil,nil).should == 3000
-    @stash.expense_between(nil,nil).should == 4000
+  it '#expense should return sub of expenses' do
+    @bank.expense(nil).should == 2000
+    @income.expense(nil).should == 3000
+    @stash.expense(nil).should == 4000
   end
-  it '#income_at should return income at specified date/month/year' do
-    @bank.income_at(2008,9,1).should == 1000
-    @bank.income_at(2008,9,2).should == 0
-    @bank.income_at(2008,9).should == 1000
-    @bank.income_at(2008).should == 1000
+  it '#income should return income at specified date/month/year' do
+    @bank.income(Date.new(2008,9,1)).should == 1000
+    @bank.income(Date.new(2008,9,2)).should == 0
+    @bank.income(Date.new(2008,9,1)..Date.new(2008,9,30)).should == 1000
+    @bank.income(Date.new(2008,1,1)..Date.new(2008,12,31)).should == 1000
   end
-  it '#expense_at should return expense at specified date/month/year' do
-    @bank.expense_at(2008,9,1).should == 0
-    @bank.expense_at(2008,9,2).should == 500
-    @bank.expense_at(2008,9).should == 2000
-    @bank.expense_at(2008).should == 2000
+  it '#expense should return expense at specified date/month/year' do
+    @bank.expense(Date.new(2008,9,1)).should == 0
+    @bank.expense(Date.new(2008,9,2)).should == 500
+    @bank.expense(Date.new(2008,9,1)..Date.new(2008,9,30)).should == 2000
+    @bank.expense(Date.new(2008,1,1)..Date.new(2008,12,31)).should == 2000
   end
 end

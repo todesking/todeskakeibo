@@ -3,6 +3,7 @@ require File.dirname(__FILE__)+'/'+'model/transaction.rb'
 require File.dirname(__FILE__)+'/'+'model/endpoint_alias.rb'
 require File.dirname(__FILE__)+'/'+'util/date_parser.rb'
 require File.dirname(__FILE__)+'/'+'util/data_structure_formatter.rb'
+require 'pp'
 
 class Controller
   def type_parser
@@ -208,7 +209,7 @@ EOS
       }
       fmt=DataStructureFormatter::Table::Formatter.new ac,['id','date','src','dest','amount','descr.']
       range_str="#{@range.first.to_s} - #{@range.last.to_s}" if !@range.nil?
-      range_str="all" if range.nil?
+      range_str="all" if @range.nil?
       conditions={}
       conditions[:date]=@range if !@range.nil?
       if @endpoint.nil?
@@ -246,16 +247,16 @@ EOS
         tree_data=tree_fmt.format_array(@endpoint)
       end
 
-      raise'nimpl'
       table_ac=DataStructureFormatter::Table::Accessor.new 
       table_ac.row_enumerator {|data| data }
       table_ac.column_enumerator{|row|
-        [row[1], row[0].balance_at(@year,@month,@date),row[0].expense_at(@year,@month,@date),row[0].income_at(@year,@month,@date)]
+        [row[1], row[0].balance(@range),row[0].expense(@range),row[0].income(@range)]
       }
       table_fmt=DataStructureFormatter::Table::Formatter.new(table_ac,['endpoint','balance','expense','income'])
       ep_name=@endpoint.nil? ? 'all endpoints' : @endpoint.name
-      range_str=@year.nil? ? "all" : [@year,@month,@date].join(' ')
-      ["balance of #{ep_name} at #{range_str}",
+      pp @range.nil?
+      range_str=@range.nil? ? "" : "#{@range.first.to_s} - #{@range.last.to_s}"
+      ["balance of #{ep_name} #{range_str}",
         table_fmt.format(tree_data)].join("\n")
     end
   end
