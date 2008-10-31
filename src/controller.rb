@@ -30,6 +30,10 @@ class Controller
       Transaction.find(Integer(id))
     }
 
+    @parser.type_parser.define_mapping([Date,Range]) {|daterange|
+      @date_parser.parse_range(daterange)
+    }
+
     # define commands
     define_command(['base_date','bd'],[[:date,Date,{:default=>nil}]]) do
       if @date.nil?
@@ -196,46 +200,21 @@ EOS
       end
     end
 
-    define_command(['transactions','trs'],[ [:range,String,{:default=>nil}], [:endpoint,Endpoint,{:default=>nil}]]) do
+    define_command(['transactions','trs'],[ [:range,[Date,Range],{:default=>nil}], [:endpoint,Endpoint,{:default=>nil}]]) do
       ac=DataStructureFormatter::Table::Accessor.new
       ac.row_enumerator {|data| data}
       ac.column_enumerator {|row|
         [row.id,row.date.to_s,row.src.name,row.dest.name,row.amount,row.description]
       }
       fmt=DataStructureFormatter::Table::Formatter.new ac,['id','date','src','dest','amount','descr.']
-      # TODO: separate and testable this daterange parse logic
-      today=Date.today
-      case @range
-      when nil
-        start=Date.new(today.year,today.month,1)
-        range=start..((start >> 1) - 1)
-      when 'all'
-        range=nil
-      when /^(\d{1,2})$/
-        month=$1.to_i
-        start=Date.new(today.year,month,1)
-        range=start..((start >> 1) - 1)
-      else
-        if Date::MONTHNAMES.include? @range
-          month=Date::MONTHNAMES.index @range
-          start=Date.new(today.year,month,1)
-          range=start..((start >> 1) - 1)
-        elsif Date::ABBR_MONTHNAMES.include? @range
-          month=Date::ABBR_MONTHNAMES.index @range
-          start=Date.new(today.year,month,1)
-          range=start..((start >> 1) - 1)
-        else
-          raise ArgumentError.new("invalid range format: #{@range}")
-        end
-      end
-      range_str="#{range.first.to_s} - #{range.last.to_s}" if !range.nil?
+      range_str="#{@range.first.to_s} - #{@range.last.to_s}" if !@range.nil?
       range_str="all" if range.nil?
       conditions={}
-      conditions[:date]=range if !range.nil?
+      conditions[:date]=@range if !@range.nil?
       if @endpoint.nil?
         body=fmt.format(Transaction.find(:all,:conditions=>conditions,:order=>'date'))
       else
-        body=fmt.format(@endpoint.transactions(range))
+        body=fmt.format(@endpoint.transactions(@range))
       end
       [range_str,body].join("\n")
     end
@@ -251,9 +230,7 @@ EOS
     end
 
     define_command(['balance','b'],[
-                     [:year,Numeric,{:default=>nil}],
-                     [:month,Numeric,{:default=>nil}],
-                     [:date,Numeric,{:default=>nil}],
+                     [:range,[Date,Range],{:default=>nil}],
                      [:endpoint,Endpoint,{:default=>nil}] ]) do
       tree_ac=DataStructureFormatter::Tree::Accessor.new
       tree_ac.value_accessor{|node| node.name}
@@ -269,6 +246,7 @@ EOS
         tree_data=tree_fmt.format_array(@endpoint)
       end
 
+      raise'nimpl'
       table_ac=DataStructureFormatter::Table::Accessor.new 
       table_ac.row_enumerator {|data| data }
       table_ac.column_enumerator{|row|
@@ -276,7 +254,7 @@ EOS
       }
       table_fmt=DataStructureFormatter::Table::Formatter.new(table_ac,['endpoint','balance','expense','income'])
       ep_name=@endpoint.nil? ? 'all endpoints' : @endpoint.name
-      range_str=@year.nil? ? "times" : [@year,@month,@date].join(' ')
+      range_str=@year.nil? ? "all" : [@year,@month,@date].join(' ')
       ["balance of #{ep_name} at #{range_str}",
         table_fmt.format(tree_data)].join("\n")
     end

@@ -58,6 +58,10 @@ describe Controller,'#type_parser' do
   it 'should parse Transaction by id' do
     @c.type_parser.parse('1',Transaction).id.should == 1
   end
+
+  it 'should parse date range' do
+    @c.type_parser.parse('Oct',[Date,Range]).should == (Date.new(2008,10,1)..Date.new(2008,10,31))
+  end
 end
 
 describe Controller,'command' do

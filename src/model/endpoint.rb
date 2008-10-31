@@ -26,11 +26,8 @@ class Endpoint < ActiveRecord::Base
   end
   def amount_at(at)
     history=newest_account_history(at)
-    if history.nil?
-      return 0 + balance_between(nil,at)
-    else
-      return history.amount + balance_between(history.date,at)
-    end
+    return 0 if history.nil?
+    return history.amount + balance(history.date..at)
   end
   def descendants
     result=self.children.to_a
@@ -40,17 +37,28 @@ class Endpoint < ActiveRecord::Base
     return result
   end
   # note: from,to is Date, inclusive
-  def balance_between(from,to,include_subendpoint=true)
+  def balance(range,include_subendpoint=true)
+    if range.nil?
+      from=nil
+      to=nil
+    elsif range.instance_of? Date
+      from=range
+      to=range
+    else #range
+      from=range.first
+      to=range.last
+      to-=1 if range.exclude_end?
+    end
     # this is slightly slow maybe, but speed is not matter in this case
     return income_between(from,to,include_subendpoint)-expense_between(from,to,include_subendpoint)
   end
   def balance_at(year=nil,month=nil,day=nil,include_subendpoint=true)
     raise ArgumentError('day argument must nil when month==nil') if month.nil? && !day.nil?
 
-    return balance_between(nil,nil,include_subendpoint) if year.nil?
+    return balance(nil,include_subendpoint) if year.nil?
 
     range=Helper.create_date_range(year,month,day)
-    return balance_between(range.first,range.last,include_subendpoint)
+    return balance(range,include_subendpoint)
   end
   def income_at(year=nil,month=nil,day=nil,include_subendpoint=true)
     raise ArgumentError('day argument must nil when month==nil') if month.nil? && !day.nil?

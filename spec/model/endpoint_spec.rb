@@ -93,13 +93,13 @@ describe Endpoint,'with no transactions and no account history' do
   it 'should returns 0 when amount_at called if account history is empty' do
     @bank.amount_at(Date.new(2008,10,1)).should be == 0
   end
-  it '#balance_between should error when called with argument to < from' do
-    lambda {@bank.balance_between(Date.new(2008,9,30),Date.new(2008,8,10))}.should raise_error(ArgumentError)
-    lambda {@bank.balance_between(Date.new(2008,9,30),Date.new(2008,9,29))}.should raise_error(ArgumentError)
-    lambda {@bank.balance_between(Date.new(2008,9,30),Date.new(2008,9,30))}.should_not raise_error
+  it '#balance should error when called with argument to < from' do
+    lambda {@bank.balance(Date.new(2008,9,30)..Date.new(2008,8,10))}.should raise_error(ArgumentError)
+    lambda {@bank.balance(Date.new(2008,9,30)..Date.new(2008,9,29))}.should raise_error(ArgumentError)
+    lambda {@bank.balance(Date.new(2008,9,30)..Date.new(2008,9,30))}.should_not raise_error
   end
-  it '#balance_between should return 0' do
-    @bank.balance_between(Date.new(2008,10,1),Date.new(2008,12,1)).should be == 0
+  it '#balance should return 0' do
+    @bank.balance(Date.new(2008,10,1),Date.new(2008,12,1)).should be == 0
   end
   it '#newest_account_history should no amount in any account and any time' do
     @wallet.newest_account_history(Date.new(2007,1,1)).should be_nil
@@ -151,7 +151,7 @@ describe Endpoint,'with some account histories and some transactions' do
   end
   it 'should returns collect amount at 9-30' do
     date=Date.new(2008,9,30)
-    @bank.amount_at(date).should be == -50000
+    @bank.amount_at(date).should be == 0
     @wallet.amount_at(date).should be == 0
     @food.amount_at(date).should be == 0
   end
@@ -174,7 +174,7 @@ describe Endpoint,'with some account histories and some transactions' do
   end
 end
 
-describe Endpoint,'#balance_between with some transactions' do
+describe Endpoint,'#balance with some transactions' do
   before(:all) do
     ModelSpecHelper.setup_database
   end
@@ -212,70 +212,64 @@ describe Endpoint,'#balance_between with some transactions' do
     t.src.name.should be == 'bank'
     t.dest.name.should be == 'wallet'
   end
-  def assert_balance_between(endpoint,from,to,expected_balance)
-    endpoint.balance_between(from,to).should be == expected_balance
+  def assert_balance(endpoint,from,to,expected_balance)
+    endpoint.balance(from..to,endpoint).should be == expected_balance
   end
 
   it 'should -10000 balance at bank and +10000 at wallet at 9-29' do
     a=Date.new(2008,9,29)
     b=Date.new(2008,9,29)
-    assert_balance_between(@bank       , a , b , -10000 )
-    assert_balance_between(@wallet     , a , b , +10000 )
-    assert_balance_between(@food       , a , b , 0      )
-    assert_balance_between(@house_rent , a , b , 0      )
-    assert_balance_between(@salary     , a , b , 0      )
+    assert_balance(@bank       , a , b , -10000 )
+    assert_balance(@wallet     , a , b , +10000 )
+    assert_balance(@food       , a , b , 0      )
+    assert_balance(@house_rent , a , b , 0      )
+    assert_balance(@salary     , a , b , 0      )
   end
   it 'should right balance at 9-29 to 9-30' do
     a=Date.new(2008,9,29)
     b=Date.new(2008,9,30)
-    assert_balance_between(@bank       , a , b , -10000 )
-    assert_balance_between(@wallet     , a , b , +8000  )
-    assert_balance_between(@food       , a , b , +2000  )
-    assert_balance_between(@house_rent , a , b , 0      )
-    assert_balance_between(@salary     , a , b , 0      )
+    assert_balance(@bank       , a , b , -10000 )
+    assert_balance(@wallet     , a , b , +8000  )
+    assert_balance(@food       , a , b , +2000  )
+    assert_balance(@house_rent , a , b , 0      )
+    assert_balance(@salary     , a , b , 0      )
   end
   it 'should right balance at 9-29 to 10-01' do
     a=Date.new(2008,9,29)
     b=Date.new(2008,10,1)
-    assert_balance_between(@bank       , a , b , +10000 )
-    assert_balance_between(@wallet     , a , b , -12000 )
-    assert_balance_between(@food       , a , b , +2000  )
-    assert_balance_between(@house_rent , a , b , 0      )
-    assert_balance_between(@salary     , a , b , 0      )
+    assert_balance(@bank       , a , b , +10000 )
+    assert_balance(@wallet     , a , b , -12000 )
+    assert_balance(@food       , a , b , +2000  )
+    assert_balance(@house_rent , a , b , 0      )
+    assert_balance(@salary     , a , b , 0      )
   end
   it 'should right balance at 9-29 to 10-02' do
     a=Date.new(2008,9,29)
     b=Date.new(2008,10,2)
-    assert_balance_between(@bank       , a , b , +45000  )
-    assert_balance_between(@wallet     , a , b , +3000   )
-    assert_balance_between(@food       , a , b , +2000   )
-    assert_balance_between(@house_rent , a , b , +50000  )
-    assert_balance_between(@salary     , a , b , -100000 )
+    assert_balance(@bank       , a , b , +45000  )
+    assert_balance(@wallet     , a , b , +3000   )
+    assert_balance(@food       , a , b , +2000   )
+    assert_balance(@house_rent , a , b , +50000  )
+    assert_balance(@salary     , a , b , -100000 )
   end
   it 'should right balance at 9-29 to 10-03, its same as 9-29 to 10-02' do
     a=Date.new(2008,9,29)
     b=Date.new(2008,10,3)
-    assert_balance_between(@bank       , a , b , +45000  )
-    assert_balance_between(@wallet     , a , b , +3000   )
-    assert_balance_between(@food       , a , b , +2000   )
-    assert_balance_between(@house_rent , a , b , +50000  )
-    assert_balance_between(@salary     , a , b , -100000 )
+    assert_balance(@bank       , a , b , +45000  )
+    assert_balance(@wallet     , a , b , +3000   )
+    assert_balance(@food       , a , b , +2000   )
+    assert_balance(@house_rent , a , b , +50000  )
+    assert_balance(@salary     , a , b , -100000 )
   end
   it 'should right balance at 9-29 to 10-04' do
     a=Date.new(2008,9,29)
     b=Date.new(2008,10,4)
-    assert_balance_between(@bank       , a , b , +45000  )
-    assert_balance_between(@wallet     , a , b , +500    )
-    assert_balance_between(@food       , a , b , +4500   )
-    assert_balance_between(@house_rent , a , b , +50000  )
-    assert_balance_between(@salary     , a , b , -100000 )
+    assert_balance(@bank       , a , b , +45000  )
+    assert_balance(@wallet     , a , b , +500    )
+    assert_balance(@food       , a , b , +4500   )
+    assert_balance(@house_rent , a , b , +50000  )
+    assert_balance(@salary     , a , b , -100000 )
   end
-  it 'should accept nil for from and to argument' do
-    assert_balance_between(@bank ,  nil                 ,  Date.new(2008,10,4 ) ,  +45000)
-    assert_balance_between(@bank ,  Date.new(2008,10,3) ,  nil                  ,  0     )
-    assert_balance_between(@bank ,  Date.new(2008,10,2) ,  nil                  ,  35000)
-  end
-
 end
 
 describe Endpoint,'with nested' do
@@ -319,8 +313,8 @@ describe Endpoint,'with nested' do
   end
   it '#descendants should not currupt hierarchy' do
     @electricity_bill.parent.id.should be @utility_bill.id
-    @expense.descendants.inject(@expense.balance_between(nil,nil,false)){|a,d|
-      a+d.balance_between(nil,nil,false)
+    @expense.descendants.inject(@expense.balance(nil,false)){|a,d|
+      a+d.balance(nil,false)
     }
     @electricity_bill.reload
     @utility_bill.reload
@@ -328,7 +322,7 @@ describe Endpoint,'with nested' do
   end
 end
 
-describe Endpoint,'#balance_between with nested endpoint' do
+describe Endpoint,'#balance with nested endpoint' do
   before(:all) do
     ModelSpecHelper.setup_database
   end
@@ -385,16 +379,17 @@ describe Endpoint,'#balance_between with nested endpoint' do
       [2009,1,5,@wallet,10000]
     ]
   end
+  def d(y,m,d); Date.new(y,m,d); end
   it 'should returns expense endpoint\'s balance between 10-10 to 10-15(sub endpoint is excluded)' do
-    @expense.balance_between(Date.new(2008,10,10),Date.new(2008,10,15),false).should be == 1000
+    @expense.balance(d(2008,10,10)..d(2008,10,15),false).should be == 1000
   end
   it 'should returns expense endpoint\'s balance between 10-10 to 10-15(sub endpoint is included)' do
-    @expense.balance_between(Date.new(2008,10,10),Date.new(2008,10,15),true).should be == 2000
-    @expense.balance_between(Date.new(2008,10,10),Date.new(2008,10,15)).should be == 2000
-    @stash.balance_between(Date.new(2008,10,10),Date.new(2008,10,15)).should be == 98000
+    @expense.balance(d(2008,10,10)..d(2008,10,15),true).should be == 2000
+    @expense.balance(d(2008,10,10)..d(2008,10,15)).should be == 2000
+    @stash.balance(d(2008,10,10)..d(2008,10,15)).should be == 98000
   end
   it 'should returns expense endpoint\'s balance between 10-10 to 10-15(sub endpoint is included)' do
-    @expense.balance_between(Date.new(2008,10,10),Date.new(2008,10,15),true).should be == 2000
+    @expense.balance(d(2008,10,10)..d(2008,10,15),true).should be == 2000
   end
   it 'should returns balance of specified day/month/year' do
     @wallet.balance_at(2009).should be == +8000
