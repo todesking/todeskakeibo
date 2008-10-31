@@ -22,4 +22,27 @@ class DateParser
       raise ArgumentError.new("unknown format date string: #{str}")
     end
   end
+  def parse_range str
+    case str.strip
+    when /-/
+      d_start,d_end=str.split('-')
+      parse(d_start)..parse(d_end)
+    when /^\d{2}$/ #month
+      m=str.to_i
+      d=Date.new(@base_date.year,m,1)
+      d..((d>>1)-1)
+    when /^\d{4}$/
+      y=str.to_i
+      Date.new(y,1,1)..Date.new(y,12,31)
+    when /^[A-Za-z]+$/
+      mname=str.downcase
+      mname[0]=mname[0,1].upcase
+      month=Date::ABBR_MONTHNAMES.index mname
+      raise ArgumentError.new("unknown month name: #{mname}") if month.nil?
+      d=Date.new(@base_date.year,month,1)
+      d..((d>>1)-1)
+    else
+      raise ArgumentError.new("unknown format date range string: #{str}")
+    end
+  end
 end

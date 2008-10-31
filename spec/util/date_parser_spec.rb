@@ -31,3 +31,28 @@ describe DateParser do
     lambda{ @rdp.parse('todayyy') }.should raise_error(ArgumentError)
   end
 end
+
+describe DateParser,'around date range' do
+  before(:each) do
+    @rdp=DateParser.new
+    @rdp.base_date=Date.new(2008,10,1)
+  end
+  def d(y,m,d); Date.new(y,m,d); end
+  it 'should parse start-end syntax' do
+    @rdp.parse_range('10-20').should == (d(2008,10,10)..d(2008,10,20))
+  end
+  it 'should parse from month' do
+    @rdp.parse_range('10').should == (d(2008,10,1)..d(2008,10,31))
+  end
+  it 'should parse from year' do
+    @rdp.parse_range('2008').should == (d(2008,1,1)..d(2008,12,31))
+  end
+  it 'should parse from month name' do
+    @rdp.parse_range('dec').should == (d(2008,12,1)..d(2008,12,31))
+    @rdp.parse_range('Nov').should == (d(2008,11,1)..d(2008,11,30))
+  end
+  it 'should error when invalid string passed' do
+    lambda{ @rdp.parse_range('10000')}.should raise_error(ArgumentError)
+    lambda{ @rdp.parse_range('Foo')}.should raise_error(ArgumentError)
+  end
+end
