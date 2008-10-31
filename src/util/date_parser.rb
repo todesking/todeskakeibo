@@ -30,7 +30,7 @@ class DateParser
            when /-/
              d_start,d_end=str.split('-')
              parse(d_start)..parse(d_end)
-           when /^\d{2}$/ #month
+           when /^\d{1,2}$/ #month
              m=str.to_i
              d=Date.new(@base_date.year,m,1)
              d..((d>>1)-1)

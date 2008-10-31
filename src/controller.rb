@@ -37,11 +37,8 @@ class Controller
 
     # define commands
     define_command(['base_date','bd'],[[:date,Date,{:default=>nil}]]) do
-      if @date.nil?
-        "base date: #{date_parser.base_date.to_s}"
-      else
-        date_parser.base_date=@date
-      end
+      date_parser.base_date=@date unless @date.nil?
+      "base date: #{date_parser.base_date.to_s}"
     end
 
     @parser.define_command(['delete','del','rm'],[ [:type,String], [:id,Numeric]]) {
@@ -151,6 +148,11 @@ EOS
         lines << "    aliases: #{parser.aliases_for(v).map{|k,v|k}.join(' ')}" unless parser.aliases_for(v).empty?
       }
       lines.join("\n")
+    end
+
+    define_command(['start-of-month','som'],[ [:date,Numeric,{:default=>nil}] ]) do
+      date_parser.start_of_month=@date unless @date.nil?
+      "start of month: #{date_parser.start_of_month.to_s}"
     end
 
     define_command(['missing-transactions','mtrs'],[]) do

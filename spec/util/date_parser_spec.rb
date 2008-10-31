@@ -7,6 +7,9 @@ describe DateParser do
   it 'should can set base date' do
     @rdp.base_date=Date.new #only check no-error
   end
+  it 'should start_of_month == 1 by default' do
+    @rdp.start_of_month.should == 1
+  end
   it 'should parse date from yyyymmdd string' do
     @rdp.parse('20081020').should be == Date.new(2008,10,20)
   end
@@ -43,6 +46,7 @@ describe DateParser,'around date range' do
   end
   it 'should parse from month' do
     @rdp.parse_range('10').should == (d(2008,10,1)..d(2008,10,31))
+    @rdp.parse_range('9').should == (d(2008,9,1)..d(2008,9,30))
   end
   it 'should parse from year' do
     @rdp.parse_range('2008').should == (d(2008,1,1)..d(2008,12,31))
