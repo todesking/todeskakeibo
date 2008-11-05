@@ -66,7 +66,7 @@ class DateParser
              d=self.today
              case $2
              when 'm'
-               (d<<$1.to_i)..d
+               ((d<<$1.to_i)+1)..d
              when 'w'
                (d-($1.to_i*7-1))..d
              when 'd'
