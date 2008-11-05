@@ -48,13 +48,14 @@ class DateParser
              raise ArgumentError.new("unknown month name: #{mname}") if month.nil?
              d=Date.new(@base_date.year,month,1)
              create_shifted_range(d,(d>>1)-1)
-           when /^(\d+)([md])$/ # nd: 今日を含むn日 nm: ここnヶ月
+           when /^(\d+)([mwd])$/ # nd: 今日を含むn日 nm: ここnヶ月
+             d=self.today
              case $2
              when 'm'
-               d=self.today
                (d<<$1.to_i)..d
+             when 'w'
+               (d-($1.to_i*7-1))..d
              when 'd'
-               d=self.today
                (d-($1.to_i-1))..d
              end
            else

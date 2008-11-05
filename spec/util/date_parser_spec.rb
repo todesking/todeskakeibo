@@ -70,6 +70,7 @@ describe DateParser,'around date range' do
   end
   it 'should parse relative range format' do
     @rdp.parse_range('3d').should == (d(2008,10,8)..d(2008,10,10))
+    @rdp.parse_range('1w').should == (d(2008,10,4)..d(2008,10,10))
     @rdp.parse_range('2m').should == (d(2008,8,10)..d(2008,10,10))
   end
   it 'should error when invalid string passed' do
