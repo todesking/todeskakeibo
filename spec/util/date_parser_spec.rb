@@ -60,6 +60,7 @@ describe DateParser,'around date range' do
     @rdp.parse_range('dec').should == (d(2008,12,1)..d(2008,12,31))
     @rdp.start_of_month=15
     @rdp.parse_range('dec').should == (d(2008,12,15)..d(2009,1,14))
+    @rdp.parse_range('1010-1012').should == (d(2008,10,10)..d(2008,10,12))
   end
   it 'should error when invalid string passed' do
     lambda{ @rdp.parse_range('10000')}.should raise_error(ArgumentError)

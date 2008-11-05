@@ -30,26 +30,26 @@ class DateParser
            when /-/
              d_start,d_end=str.split('-')
              parse(d_start)..parse(d_end)
-           when /^\d{1,2}$/ #month
+           when /^\d{1,2}$/ # mm
              m=str.to_i
              d=Date.new(@base_date.year,m,1)
-             d..((d>>1)-1)
-           when /^\d{4}$/
+             create_shifted_range(d,(d>>1)-1)
+           when /^\d{4}$/ # yyyy
              y=str.to_i
              Date.new(y,1,1)..Date.new(y,12,31)
-           when /^[A-Za-z]+$/
+           when /^[A-Za-z]+$/ # month name
              mname=str.downcase
              mname[0]=mname[0,1].upcase
              month=Date::ABBR_MONTHNAMES.index mname
              raise ArgumentError.new("unknown month name: #{mname}") if month.nil?
              d=Date.new(@base_date.year,month,1)
-             d..((d>>1)-1)
+             create_shifted_range(d,(d>>1)-1)
            else
              raise ArgumentError.new("unknown format date range string: #{str}")
            end
-    return date_range_shift(result)
+    return result
   end
-  def date_range_shift(range)
-    (range.first+@start_of_month-1)..(range.last+@start_of_month-1)
+  def create_shifted_range(a,b)
+    (a+@start_of_month-1)..(b+@start_of_month-1)
   end
 end
