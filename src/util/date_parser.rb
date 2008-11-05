@@ -7,6 +7,10 @@ class DateParser
   attr_accessor :base_date
   attr_accessor :start_of_month
 
+  def today
+    Date.today
+  end
+
   def parse str
     case str.strip
     when /^(\d{4})(\d{2})(\d{2})$/
@@ -16,11 +20,11 @@ class DateParser
     when /^(\d{1,2})$/
       Date.new(@base_date.year,@base_date.month,$1.to_i)
     when /^today$/
-      Date.today
+      self.today
     when /^yesterday$/
-      Date.today-1
+      self.today-1
     when /^d-(\d+)$/
-      Date.today - $1.to_i
+      self.today - $1.to_i
     else
       raise ArgumentError.new("unknown format date string: #{str}")
     end

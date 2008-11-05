@@ -3,6 +3,9 @@ require File.dirname(__FILE__)+'/'+'../../src/util/date_parser.rb'
 describe DateParser do
   before(:each) do
     @rdp=DateParser.new
+    def @rdp.today
+      Date.new(2008,10,10)
+    end
   end
   it 'should can set base date' do
     @rdp.base_date=Date.new #only check no-error
@@ -20,14 +23,14 @@ describe DateParser do
     @rdp.parse('3').should be == Date.new(2008,10,3)
   end
   it 'should parse "today"' do
-    @rdp.parse('today').should be == Date.today
+    @rdp.parse('today').should be == Date.new(2008,10,10)
   end
   it 'should parse "yesterday"' do
-    @rdp.parse('yesterday').should be == Date.today - 1
+    @rdp.parse('yesterday').should be == Date.new(2008,10,10)-1
   end
   it 'should parse "d-n" format' do
     @rdp.parse('d-1').should == @rdp.parse('yesterday')
-    @rdp.parse('d-3').should == Date.today - 3
+    @rdp.parse('d-3').should == @rdp.parse('today')-3
   end
   it 'should error when unknown format' do
     lambda{ @rdp.parse('yesterdayyy') }.should raise_error(ArgumentError)
@@ -39,6 +42,9 @@ describe DateParser,'around date range' do
   before(:each) do
     @rdp=DateParser.new
     @rdp.base_date=Date.new(2008,10,1)
+    def @rdp.today
+      Date.new(2008,10,10)
+    end
   end
   def d(y,m,d); Date.new(y,m,d); end
   it 'should parse start-end syntax' do
@@ -61,6 +67,10 @@ describe DateParser,'around date range' do
     @rdp.start_of_month=15
     @rdp.parse_range('dec').should == (d(2008,12,15)..d(2009,1,14))
     @rdp.parse_range('1010-1012').should == (d(2008,10,10)..d(2008,10,12))
+  end
+  it 'should parse relative range format' do
+    pending
+    @rdp.parse_range('3d').shuffle == (d(2008,11,2)..d(2008,11,5))
   end
   it 'should error when invalid string passed' do
     lambda{ @rdp.parse_range('10000')}.should raise_error(ArgumentError)
