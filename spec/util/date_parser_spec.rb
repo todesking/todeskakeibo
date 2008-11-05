@@ -69,8 +69,8 @@ describe DateParser,'around date range' do
     @rdp.parse_range('1010-1012').should == (d(2008,10,10)..d(2008,10,12))
   end
   it 'should parse relative range format' do
-    pending
-    @rdp.parse_range('3d').shuffle == (d(2008,11,2)..d(2008,11,5))
+    @rdp.parse_range('3d').should == (d(2008,10,8)..d(2008,10,10))
+    @rdp.parse_range('2m').should == (d(2008,8,10)..d(2008,10,10))
   end
   it 'should error when invalid string passed' do
     lambda{ @rdp.parse_range('10000')}.should raise_error(ArgumentError)
