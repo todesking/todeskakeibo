@@ -29,9 +29,26 @@ class DateParser
       raise ArgumentError.new("unknown format date string: #{str}")
     end
   end
+  def month_str_to_i(mname)
+    mname=mname.dup
+    mname[0]=mname[0,1].upcase
+    month=Date::ABBR_MONTHNAMES.index mname
+    raise ArgumentError.new("unknown month name: #{$1}") if month.nil?
+    return month
+  end
   def parse_range str
     result=case str.strip
-           when /-/
+           when /^([A-Za-z]{3})-([A-Za-z]{3})$/
+             from=month_str_to_i($1)
+             to=month_str_to_i($2)
+             if from <= to
+               diff=to-from+1
+             else
+               diff=(to+12)-from+1
+             end
+             d=Date.new(@base_date.year,from,1)
+             d..((d>>diff)-1)
+           when /-/ # date-date
              d_start,d_end=str.split('-')
              parse(d_start)..parse(d_end)
            when /^\d{1,2}$/ # mm
@@ -41,11 +58,8 @@ class DateParser
            when /^\d{4}$/ # yyyy
              y=str.to_i
              Date.new(y,1,1)..Date.new(y,12,31)
-           when /^[A-Za-z]+$/ # month name
-             mname=str.downcase
-             mname[0]=mname[0,1].upcase
-             month=Date::ABBR_MONTHNAMES.index mname
-             raise ArgumentError.new("unknown month name: #{mname}") if month.nil?
+           when /^([A-Za-z]{3})$/ # month name
+             month=month_str_to_i($1)
              d=Date.new(@base_date.year,month,1)
              create_shifted_range(d,(d>>1)-1)
            when /^(\d+)([mwd])$/ # nd: 今日を含むn日 nm: ここnヶ月

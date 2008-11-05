@@ -47,8 +47,14 @@ describe DateParser,'around date range' do
     end
   end
   def d(y,m,d); Date.new(y,m,d); end
+
   it 'should parse start-end syntax' do
     @rdp.parse_range('10-20').should == (d(2008,10,10)..d(2008,10,20))
+  end
+  it 'should parse mabbr-mabbr syntax(ex. apr-nov)' do
+    @rdp.parse_range('apr-nov').should == (d(2008,4,1)..d(2008,11,30))
+    @rdp.parse_range('nov-nov').should == (d(2008,11,1)..d(2008,11,30))
+    @rdp.parse_range('nov-jan').should == (d(2008,11,1)..d(2009,1,31))
   end
   it 'should parse from month' do
     @rdp.parse_range('10').should == (d(2008,10,1)..d(2008,10,31))
