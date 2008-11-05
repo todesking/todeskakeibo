@@ -13,8 +13,8 @@ module ModelHelper
       create table transactions (
         id integer not null primary key,
         date date not null,
-        src string not null,
-        dest string not null,
+        src integer,
+        dest integer,
         amount integer not null,
         description text
       )

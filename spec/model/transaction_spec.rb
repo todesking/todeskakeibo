@@ -32,6 +32,22 @@ describe Transaction,'in common' do
       :amount => 1000
     ).save
   end
+  it 'should accept nil for src/dest' do
+    Transaction.new(
+      :date => '2008-10-18',
+      :src => nil,
+      :dest => @wallet,
+      :amount => 1000
+    ).save
+    Transaction.new(
+      :date => '2008-10-18',
+      :src => @bank,
+      :dest => nil,
+      :amount => 2000
+    ).save
+    Transaction.find(1).amount.should == 1000
+    Transaction.find(2).amount.should == 2000
+  end
 end
 
 describe Transaction,'when no transactions' do
