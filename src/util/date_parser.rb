@@ -58,6 +58,9 @@ class DateParser
              when 'd'
                (d-($1.to_i-1))..d
              end
+           when /^q([1-4])$/ # quarter 1-4
+             d=Date.new(@base_date.year,[4,7,10,1][$1.to_i-1],1)
+             d..((d>>3)-1)
            else
              raise ArgumentError.new("unknown format date range string: #{str}")
            end

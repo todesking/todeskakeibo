@@ -73,6 +73,9 @@ describe DateParser,'around date range' do
     @rdp.parse_range('1w').should == (d(2008,10,4)..d(2008,10,10))
     @rdp.parse_range('2m').should == (d(2008,8,10)..d(2008,10,10))
   end
+  it 'should parse quarter format(ex. q3 is oct-dec)' do
+    @rdp.parse_range('q3').should == (d(2008,10,1)..d(2008,12,31))
+  end
   it 'should error when invalid string passed' do
     lambda{ @rdp.parse_range('10000')}.should raise_error(ArgumentError)
     lambda{ @rdp.parse_range('Foo')}.should raise_error(ArgumentError)
