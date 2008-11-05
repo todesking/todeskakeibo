@@ -164,7 +164,7 @@ EOS
         (1...ahs.length).each{|i|
           before=ahs[i-1]
           current=ahs[i]
-          diff=current.amount - (before.amount+ep.balance_between(before.date,current.date-1))
+          diff=current.amount - (before.amount+ep.balance(before.date...current.date))
           missing.push([ep.name,current.date-1,diff]) if diff!=0
         }
       }
