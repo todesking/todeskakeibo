@@ -42,22 +42,41 @@ class Controller
     end
 
     @parser.define_command(['delete','del','rm'],[ [:type,String], [:id,Numeric]]) {
+      ac=DataStructureFormatter::Table::Accessor.new
+      fmt=nil
       case @type
       when 'transaction','tr'
         table=Transaction
+        ac.column_enumerator {|row|
+          [row.id,row.date.to_s,row.src.name,row.dest.name,row.amount,row.description]
+        }
+        fmt=DataStructureFormatter::Table::Formatter.new ac,['id','date','src','dest','amount','descr.']
       when 'account_history','ah'
         table=AccountHistory
+        ac.column_enumerator {|row|
+          [row.id,row.date.to_s,row.endpoint.name,row.amount]
+        }
+        fmt=DataStructureFormatter::Table::Formatter.new ac,['id','date','endpoint','amount']
       when 'endpoint','ep'
         table=Endpoint
+        ac.column_enumerator {|row|
+          [row.id,row.name,row.parent.nil? ? '':row.parent.name,row.aliases.map{|a|a.name}.join(','),row.description]
+        }
+        fmt=DataStructureFormatter::Table::Formatter.new ac,['id','name','parent','aliases','descr.']
       when 'endpoint_alias','epa'
         table=EndpointAlias
+        ac.column_enumerator {|row|
+          [row.id,row.name,row.endpoint.name]
+        }
+        fmt=DataStructureFormatter::Table::Formatter.new ac,['id','name','alias for']
       else
         next 'usage: delete [transaction|account_history|endpoint|endpoint_alias]'
       end
       target=table.find_by_id(@id)
       raise "id #{@id} not found" if target.nil?
+      str=fmt.format [target]
       target.destroy
-      "#{table.name} \##{target.id} was destroied"
+      "#{table.name} \##{target.id} was destroied\n"+str
     }
 
     define_command(['transaction','tr','t'],[[:date,Date], [:src,Endpoint], [:dest,Endpoint], [:amount,Numeric], [:description,String,{:default=>nil}]]) do
