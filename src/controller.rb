@@ -170,8 +170,6 @@ EOS
       }
       next 'nothing' if missing.empty?
       table_ac=DataStructureFormatter::Table::Accessor.new 
-      table_ac.row_enumerator {|data| data }
-      table_ac.column_enumerator{|row| row}
       table_fmt=DataStructureFormatter::Table::Formatter.new(table_ac,['endpoint','date','diff'])
       table_fmt.format missing
     end
@@ -186,7 +184,6 @@ EOS
         data=[]
         Endpoint.roots.each{|ep| data += tree_fmt.format_array(ep) }
         table_ac=DataStructureFormatter::Table::Accessor.new 
-        table_ac.row_enumerator {|data| data }
         table_ac.column_enumerator{|row|
           [row[0].id,row[1],row[0].aliases.map{|a|a.name}.join(',')]
         }
@@ -194,7 +191,6 @@ EOS
         table_fmt.format data
       when 'table'
         ac=DataStructureFormatter::Table::Accessor.new
-        ac.row_enumerator {|target| target}
         ac.column_enumerator {|row|
           parent_name=row.parent.nil? ? '':row.parent.name
           [row.id,row.name,parent_name,row.aliases.map{|a|a.name}.join(','),row.description]
@@ -208,7 +204,6 @@ EOS
 
     define_command(['transactions','trs'],[ [:range,[Date,Range],{:default=>nil}], [:endpoint,Endpoint,{:default=>nil}]]) do
       ac=DataStructureFormatter::Table::Accessor.new
-      ac.row_enumerator {|data| data}
       ac.column_enumerator {|row|
         [row.id,row.date.to_s,row.src.name,row.dest.name,row.amount,row.description]
       }
@@ -227,7 +222,6 @@ EOS
 
     define_command(['account_histories','ahs']) do
       ac=DataStructureFormatter::Table::Accessor.new
-      ac.row_enumerator {|data| data}
       ac.column_enumerator {|row|
         [row.id,row.date.to_s,row.endpoint.name,row.amount]
       }
@@ -253,7 +247,6 @@ EOS
       end
 
       table_ac=DataStructureFormatter::Table::Accessor.new 
-      table_ac.row_enumerator {|data| data }
       table_ac.column_enumerator{|row|
         [row[1], row[0].balance(@range),row[0].expense(@range),row[0].income(@range)]
       }
