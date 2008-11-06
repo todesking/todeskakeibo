@@ -190,7 +190,7 @@ EOS
       next 'nothing' if missing.empty?
       table_ac=DataStructureFormatter::Table::Accessor.new 
       table_fmt=DataStructureFormatter::Table::Formatter.new(table_ac,['endpoint','date','diff'])
-      table_fmt.format missing
+      [table_fmt.format(missing),"#{missing.length} items."].join("\n")
     end
 
     define_command(['endpoints','eps'],[ [:format_type,String,{:default=>'tree'}] ]) do
@@ -232,11 +232,11 @@ EOS
       conditions={}
       conditions[:date]=@range if !@range.nil?
       if @endpoint.nil?
-        body=fmt.format(Transaction.find(:all,:conditions=>conditions,:order=>'date'))
+        transactions=Transaction.find(:all,:conditions=>conditions,:order=>'date')
       else
-        body=fmt.format(@endpoint.transactions(@range))
+        transactions=@endpoint.transactions(@range)
       end
-      [range_str,body].join("\n")
+      [range_str,fmt.format(transactions),"#{transactions.length} transactions."].join("\n")
     end
 
     define_command(['account_histories','ahs']) do
@@ -245,7 +245,8 @@ EOS
         [row.id,row.date.to_s,row.endpoint.name,row.amount]
       }
       fmt=DataStructureFormatter::Table::Formatter.new ac,['id','date','endpoint','amount']
-      fmt.format(AccountHistory.find(:all,:order=>'date'))
+      ahs=AccountHistory.find(:all,:order=>'date')
+      [fmt.format(ahs),"#{ahs.length} items"].join("\n")
     end
 
     define_command(['balance','b'],[
