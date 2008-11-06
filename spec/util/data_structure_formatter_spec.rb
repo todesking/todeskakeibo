@@ -17,7 +17,7 @@ describe DataStructureFormatter::Tree do
     @ac.value_accessor {|target| target[0].to_s }
     @ac.child_enumerator {|target| target[1] }
     formatter=DataStructureFormatter::Tree::Formatter.new(@ac)
-    formatter.format(@data).should be == <<'EOS'
+    formatter.format(@data).should be == <<'EOS'[0..-2]
 --1
   +-2
   `-3
@@ -100,7 +100,7 @@ describe DataStructureFormatter::Table do
   end
   
   it 'should format to human readable table structure' do
-    @formatter.format(@data).should == <<'EOS'
+    @formatter.format(@data).should == <<'EOS'[0..-2]
 +----+----------+--------+
 | id | name     | amount |
 +----+----------+--------+

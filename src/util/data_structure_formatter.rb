@@ -22,7 +22,7 @@ module DataStructureFormatter
       def format(target)
         out=[]
         format_impl(target,false,'','--',out,false)
-        return out.join("\n")+"\n"
+        return out.join("\n")
       end
       def format_array(target)
         out=[]
@@ -83,7 +83,7 @@ module DataStructureFormatter
         result << render_sepalate_line(widths)
         table.each{|row| result << render_row(widths,row)}
         result << render_sepalate_line(widths)
-        return result.join("\n")+"\n"
+        return result.join("\n")
       end
       def column_justify(col,value)
         @justify[col]=value
