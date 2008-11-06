@@ -11,7 +11,7 @@ class TypeParser
       when type == String
         str
       when type == Numeric
-        str.to_i
+        Integer(str)
       when type == Date && str.strip.length==8
         s=str.strip
         Date.new(s[0..3].to_i,s[4..5].to_i,s[6..7].to_i)

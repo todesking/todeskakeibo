@@ -11,6 +11,9 @@ describe TypeParser,'by default' do
   it 'should parse numeric argument by default' do
     @tp.parse('100',Numeric).should be == 100
   end
+  it 'should error when non-number passed as Numeric' do
+    lambda { @tp.parse('moge',Numeric) }.should raise_error(ArgumentError)
+  end
   it 'should parse date argument as yyyymmdd by default' do
     @tp.parse('20081011',Date).should be == Date.new(2008,10,11)
   end
