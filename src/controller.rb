@@ -169,8 +169,11 @@ EOS
         }
       }
       next 'nothing' if missing.empty?
-      "endpoint\tdate\tdiff\n"+
-      missing.map{|m|m.join("\t")}.join("\n")
+      table_ac=DataStructureFormatter::Table::Accessor.new 
+      table_ac.row_enumerator {|data| data }
+      table_ac.column_enumerator{|row| row}
+      table_fmt=DataStructureFormatter::Table::Formatter.new(table_ac,['endpoint','date','diff'])
+      table_fmt.format missing
     end
 
     define_command(['endpoints','eps'],[ [:format_type,String,{:default=>'tree'}] ]) do
