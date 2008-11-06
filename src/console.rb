@@ -3,6 +3,7 @@ puts 'loading libs...'
 require 'rubygems'
 require 'activerecord'
 require 'kconv'
+require 'readline'
 puts 'loading controller...'
 require File.dirname(__FILE__)+'/'+'controller.rb'
 puts 'loading model...'
@@ -48,9 +49,11 @@ controller.define_command(['verbose_error','ve'],[[:enable,String,{:default=>nil
   verbose_error
 end
 
+trap("INT", "SIG_IGN")
 while(continue)
-  print 'kakeibo> '
-  cmd=in_filter gets
+  cmd=in_filter Readline.readline 'kakeibo> ',true
+  Readline::HISTORY.pop if /^\s*$/ =~ cmd
+  Readline::HISTORY.pop if 1 < Readline::HISTORY.length && Readline::HISTORY[Readline::HISTORY.length-2] == cmd
   begin
     resp=controller.execute(cmd)
     resp_str=(resp.respond_to? :to_str)? resp.to_str : resp.to_s
