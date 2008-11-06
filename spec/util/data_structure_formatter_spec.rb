@@ -63,6 +63,12 @@ describe DataStructureFormatter::Table do
     @ac.columns(rows.to_a[0]).should == [1,'hoge',1000]
   end
 
+  it 'should have default access method' do
+    ac=DataStructureFormatter::Table::Accessor.new
+    ac.rows([1,2,3,4]).to_a.should == [1,2,3,4]
+    ac.columns([1,2,3,4]).to_a.should == [1,2,3,4]
+  end
+
   it 'should convert data to table structure' do
     @ac.convert_to_table(@data).should == [
       [1,'hoge',1000],

@@ -55,10 +55,10 @@ module DataStructureFormatter
         @column_enumerator=block
       end
       def rows data
-        @row_enumerator.call data
+        @row_enumerator.nil? ? data : @row_enumerator.call(data)
       end
       def columns row
-        @column_enumerator.call row
+        @column_enumerator.nil? ? row : @column_enumerator.call(row)
       end
       def convert_to_table data
         table=[]
