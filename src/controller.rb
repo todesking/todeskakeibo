@@ -277,6 +277,10 @@ EOS
       ["balance of #{ep_name} #{range_str}",
         table_fmt.format(tree_data)].join("\n")
     end
+
+    define_command(['estimate','est'],[ [:endpoint,Endpoint] ]) do
+      " current amount of #{@endpoint.name} is #{@endpoint.amount_at(Date.today)}"
+    end
   end
   def define_command(name,defs=[],&block)
     @parser.define_command(name,defs,&block)
