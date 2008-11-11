@@ -9,6 +9,7 @@ class Controller
   def type_parser
     @parser.type_parser
   end
+  attr_accessor :parser
   def initialize
     @parser=CommandParser.new
     @date_parser=DateParser.new
@@ -40,6 +41,7 @@ class Controller
       date_parser.base_date=@date unless @date.nil?
       "base date: #{date_parser.base_date.to_s}"
     end
+    @parser.command('bd').description='show/set base date'
 
     @parser.define_command(['delete','del','rm'],[ [:type,String], [:id,Numeric]]) {
       ac=DataStructureFormatter::Table::Accessor.new
@@ -78,24 +80,28 @@ class Controller
       target.destroy
       "#{table.name} \##{target.id} was destroied\n"+str
     }
+    @parser.command('del').description='delete specified item'
 
     define_command(['transaction','tr','t'],[[:date,Date], [:src,Endpoint], [:dest,Endpoint], [:amount,Numeric], [:description,String,{:default=>nil}]]) do
       tr=Transaction.new(:date=>@date, :src=>@src, :dest=>@dest, :amount=>@amount,:description=>@description)
       tr.save
       "transaction \##{tr.id} added."
     end
+    @parser.command('tr').description='add transaction'
 
     define_command(['account','ac','a'],[[:date,Date], [:endpoint,Endpoint], [:amount,Numeric],[:description,String,{:default=>nil}]]) do
       ah=AccountHistory.new(:date=>@date, :endpoint=>@endpoint, :amount=>@amount, :description=>@description)
       ah.save
       "account history \##{ah.id} added"
     end
+    @parser.command('a').description='add account history'
 
     define_command(['endpoint','ep'],[[:ep_name,String],[:parent,Endpoint,{:default=>nil}],[:description,String,{:default=>nil}]]) do
       ep=Endpoint.new(:name=>@ep_name,:parent=>@parent,:description=>@description)
       ep.save
       "enpoint \##{ep.id}(#{ep.name}) added."
     end
+    @parser.command('ep').description='add endpoint'
 
     @parser.define_hierarchical_command(['set',['endpoint','ep']],[ [:target,Endpoint], [:property,String],[:value,String] ]) do
       case @property
@@ -111,6 +117,7 @@ class Controller
       end
       "set endpoint #{@target.name} #{@property} #{@value}"
     end
+    @parser.command('set').description='set the item\'s attribute'
 
     @parser.define_hierarchical_command(['set',['transaction','tr']],[ [:target,Transaction],[:property,String],[:value,String] ]) do
       raise ArgumentError.new("target not found") if @target.nil?
@@ -137,6 +144,7 @@ class Controller
       epa.save
       "endpoint alias \##{epa.id}(#{epa.name} => #{@alias_for.name}) added."
     end
+    @parser.command('epa').description='create endpoint aliase name'
 
     # define commands(untestable, most of is 'show' command)
     define_command(['help','h','he','?'],[ [:arg,String,{:default=>nil}] ]) do
@@ -146,8 +154,17 @@ class Controller
           "help: command #{@arg} is undefined"
         else
           lines=[]
-          lines << "#{cmd.to_str}"
-          lines << "aliases: #{parser.aliases_for(cmd).map{|k,v|k}.join(' ')}" unless parser.aliases_for(cmd).empty?
+          if parser.aliases_for(cmd).empty?
+            lines << "#{cmd.name} #{cmd.arg_defs.to_str}"
+          else
+            lines << "#{cmd.name}(#{parser.aliases_for(cmd).map{|k,cmd|k}.join(' ')}) #{cmd.arg_defs.to_str}"
+          end
+          lines << "  #{cmd.description}" unless cmd.description.nil? || cmd.description.empty?
+          lines << "sub-commands:" unless cmd.sub_commands.empty?
+          cmd.sub_commands.values.map{|c|[c,cmd.sub_commands.reject{|k,v|v!=c||k==c.name}.map{|k,v|k}]}.each{|c,a|
+            lines << "  #{cmd.name} #{c.name} #{c.arg_defs.to_str}"
+            lines << "    #{c.description}" unless c.description.nil? || c.description.empty?
+          }
           lines.join("\n")
         end
       else
@@ -158,12 +175,18 @@ help <command-name> : show command usage
 EOS
       end
     end
+    @parser.command('h').description='show help'
+
     @parser.define_hierarchical_command(['help',['commands','co']],[]) do
       lines=[]
       lines << 'Commands:'
       parser.non_alias_commands.each{|k,v|
-        lines << "  #{v.to_str}"
-        lines << "    aliases: #{parser.aliases_for(v).map{|k,v|k}.join(' ')}" unless parser.aliases_for(v).empty?
+        if parser.aliases_for(v).empty?
+          lines << "  #{v.name} #{v.arg_defs.to_str}"
+        else
+          lines << "  #{v.name}(#{parser.aliases_for(v).map{|k,v|k}.join(' ')}) #{v.arg_defs.to_str}"
+        end
+        lines << "    #{v.description}" unless v.description.nil? || v.description.empty?
       }
       lines.join("\n")
     end
@@ -172,6 +195,7 @@ EOS
       date_parser.start_of_month=@date unless @date.nil?
       "start of month: #{date_parser.start_of_month.to_s}"
     end
+    @parser.command('som').description='show/set day of start of month'
 
     define_command(['missing-transactions','mtrs'],[]) do
       require 'pp'
@@ -191,6 +215,7 @@ EOS
       table_fmt=DataStructureFormatter::Table::Formatter.new(table_ac,['endpoint','date','diff'])
       [table_fmt.format(missing),"#{missing.length} items."].join("\n")
     end
+    @parser.command('mtrs').description='show missing cacheflow'
 
     define_command(['endpoints','eps'],[ [:format_type,String,{:default=>'tree'}] ]) do
       case @format_type
@@ -219,6 +244,7 @@ EOS
         raise "unknown format type: #{@format_type}. tree|table is acceptable"
       end
     end
+    @parser.command('eps').description='show endpoints'
 
     define_command(['transactions','trs'],[ [:range,[Date,Range],{:default=>nil}], [:endpoint,Endpoint,{:default=>nil}]]) do
       ac=DataStructureFormatter::Table::Accessor.new
@@ -237,6 +263,7 @@ EOS
       end
       [range_str,fmt.format(transactions),"#{transactions.length} transactions."].join("\n")
     end
+    @parser.command('trs').description='show transactions'
 
     define_command(['account_histories','ahs']) do
       ac=DataStructureFormatter::Table::Accessor.new
@@ -247,6 +274,7 @@ EOS
       ahs=AccountHistory.find(:all,:order=>'date')
       [fmt.format(ahs),"#{ahs.length} items"].join("\n")
     end
+    @parser.command('ahs').description='show account histories'
 
     define_command(['balance','b'],[
                      [:range,[Date,Range],{:default=>nil}],
@@ -276,11 +304,14 @@ EOS
       ["balance of #{ep_name} #{range_str}",
         table_fmt.format(tree_data)].join("\n")
     end
+    @parser.command('b').description='show balance of the endpoint'
 
     define_command(['estimate','est'],[ [:endpoint,Endpoint] ]) do
       " current amount of #{@endpoint.name} is #{@endpoint.amount_at(Date.today)}"
     end
+    @parser.command('est').description='show current amount of the endpoint'
   end
+
   def define_command(name,defs=[],&block)
     @parser.define_command(name,defs,&block)
   end

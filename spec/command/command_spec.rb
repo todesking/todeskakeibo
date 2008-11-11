@@ -47,6 +47,12 @@ describe Command,'with some arguments' do
     cmd=Command.new('cmd',ArgumentDefinition.new(TypeParser.new,[ [:arg1,String], [:arg2,Numeric], [:arg3,Date] ])) {}
     cmd.to_str.should be == 'cmd arg1:String arg2:Numeric arg3:Date'
   end
+  it 'should have description' do
+    cmd=Command.new('cmd',ArgumentDefinition.new(TypeParser.new,[ [:arg1,String], [:arg2,Numeric], [:arg3,Date] ])) {}
+    cmd.description.should be_nil
+    cmd.description='the command'
+    cmd.description.should == 'the command'
+  end
 end
 
 describe Command,'about sub command' do

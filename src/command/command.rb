@@ -2,12 +2,14 @@ class Command
   attr_reader :name
   attr_reader :arg_defs
   attr_reader :sub_commands
+  attr_accessor :description
   def initialize(name,arg_defs,&body)
     raise ArgumentError.new('block must be given') if body.nil?
     @name=name
     @arg_defs=arg_defs
     @body=body
     @sub_commands={}
+    @description=nil
   end
 
   def execute args

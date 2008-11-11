@@ -31,10 +31,17 @@ continue=true
 verbose_error=false
 
 controller.define_command('exit',[]) { continue=false;'bye.' }
-controller.define_command('initialize_database',[]) {
-  ModelHelper.create_tables
-  'done.'
+controller.parser.command('exit').description='exit console'
+controller.define_command('initialize_database',[[:ensure,String,{:default=>nil}]]) {
+  keyword='DO_INITIALIZE'
+  if @ensure==keyword
+    ModelHelper.create_tables
+    'the database is initialized'
+  else
+    "type '#{keyword}' to continue"
+  end
 }
+controller.parser.command('initialize_database').description='initialize database (danger)'
 controller.define_command(['verbose_error','ve'],[[:enable,String,{:default=>nil}]]) do
   case @enable
   when 'true'
@@ -48,6 +55,7 @@ controller.define_command(['verbose_error','ve'],[[:enable,String,{:default=>nil
   end
   verbose_error
 end
+controller.parser.command('ve').description='show/switch verbose error message option'
 
 trap("INT", "SIG_IGN")
 while(continue)
