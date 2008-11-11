@@ -197,7 +197,7 @@ describe Controller,'command' do
     Endpoint.find_by_name('hage').should be_nil
     Endpoint.find_by_name('hoge').should_not be_nil
   end
-  it 'should set transaction\'s src/dest/amount/date' do
+  it 'should set transaction\'s src/dest/amount/date/description' do
     @c.execute([
                'endpoint super food',
                'endpoint snack food',
@@ -229,5 +229,10 @@ describe Controller,'command' do
     t.date.should == Date.new(2008,10,1)
     @c.execute('set transaction 1 date= 20080911')
     Transaction.find(:first).date.should == Date.new(2008,9,11)
+
+    t=Transaction.find(:first)
+    t.description.should == 'comment'
+    @c.execute('set transaction 1 description= hage')
+    Transaction.find(:first).description.should == 'hage'
   end
 end

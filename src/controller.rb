@@ -117,19 +117,18 @@ class Controller
       case @property
       when 'src='
         @target.src=parser.type_parser.parse(@value,Endpoint)
-        @target.save
       when 'dest='
         @target.src=parser.type_parser.parse(@value,Endpoint)
-        @target.save
       when 'amount='
         @target.amount=parser.type_parser.parse(@value,Numeric)
-        @target.save
       when 'date='
         @target.date=parser.type_parser.parse(@value,Date)
-        @target.save
+      when 'description='
+        @target.description=@value
       else
         raise ArgumentError.new("unknown property: #{@property}")
       end
+      @target.save
       "set transaction #{@target.id} #{@property} #{@value}"
     end
     
