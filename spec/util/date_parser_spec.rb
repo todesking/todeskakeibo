@@ -82,6 +82,12 @@ describe DateParser,'around date range' do
   it 'should parse quarter format(ex. q3 is oct-dec)' do
     @rdp.parse_range('q3').should == (d(2008,10,1)..d(2008,12,31))
   end
+  it 'should parse open-end range format(ex. nov-, -apr)' do
+    @rdp.max_date.should == d(9999,12,31)
+    @rdp.min_date.should == d(0000,01,01)
+    @rdp.parse_range('nov-').should == (d(2008,11,1)..@rdp.max_date)
+    @rdp.parse_range('-apr').should == (@rdp.min_date..d(2008,04,01))
+  end
   it 'should error when invalid string passed' do
     lambda{ @rdp.parse_range('10000')}.should raise_error(ArgumentError)
     lambda{ @rdp.parse_range('Foo')}.should raise_error(ArgumentError)

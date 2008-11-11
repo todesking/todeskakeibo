@@ -2,10 +2,14 @@ class DateParser
   def initialize base_date=Date.new
     @base_date=base_date
     @start_of_month=1
+    @max_date=Date.new(9999,12,31)
+    @min_date=Date.new(0000,01,01)
   end
 
   attr_accessor :base_date
   attr_accessor :start_of_month
+  attr_reader :max_date
+  attr_reader :min_date
 
   def today
     Date.today
@@ -36,6 +40,12 @@ class DateParser
     raise ArgumentError.new("unknown month name: #{$1}") if month.nil?
     return month
   end
+  def last_date_of_month(year,month)
+    first_date_of_month(year,month) >> 1 - 1
+  end
+  def first_date_of_month(year,month)
+    Date.new(year,month,1)
+  end
   def parse_range str
     result=case str.strip
            when /^([A-Za-z]{3})-([A-Za-z]{3})$/
@@ -48,6 +58,10 @@ class DateParser
              end
              d=Date.new(@base_date.year,from,1)
              d..((d>>diff)-1)
+           when /^-(.+)$/
+             self.min_date..last_date_of_month(@base_date.year,month_str_to_i($1))
+           when /^([^-]+)-$/
+             first_date_of_month(@base_date.year,month_str_to_i($1))..self.max_date
            when /-/ # date-date
              d_start,d_end=str.split('-')
              parse(d_start)..parse(d_end)
