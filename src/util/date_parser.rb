@@ -37,14 +37,14 @@ class DateParser
     mname=mname.dup
     mname[0]=mname[0,1].upcase
     month=Date::ABBR_MONTHNAMES.index mname
-    raise ArgumentError.new("unknown month name: #{$1}") if month.nil?
+    raise ArgumentError.new("unknown month name: #{mname}") if month.nil?
     return month
   end
   def last_date_of_month(year,month)
-    first_date_of_month(year,month) >> 1 - 1
+    (first_date_of_month(year,month) >> 1) - 1
   end
   def first_date_of_month(year,month)
-    Date.new(year,month,1)
+    Date.new(year,month,1)+(start_of_month-1)
   end
   def parse_range str
     result=case str.strip
@@ -58,10 +58,14 @@ class DateParser
              end
              d=Date.new(@base_date.year,from,1)
              d..((d>>diff)-1)
-           when /^-(.+)$/
+           when /^-([a-zA-Z]{3})$/
              self.min_date..last_date_of_month(@base_date.year,month_str_to_i($1))
-           when /^([^-]+)-$/
+           when /^-(.+)$/
+             self.min_date..parse($1)
+           when /^([a-zA-Z]{3})-$/
              first_date_of_month(@base_date.year,month_str_to_i($1))..self.max_date
+           when /^([^-]+)-$/
+             parse($1)..self.max_date
            when /-/ # date-date
              d_start,d_end=str.split('-')
              parse(d_start)..parse(d_end)
