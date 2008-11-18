@@ -90,8 +90,8 @@ describe Endpoint,'with no transactions and no account history' do
     Transaction.delete_all
     AccountHistory.delete_all
   end
-  it 'should returns 0 when amount_at called if account history is empty' do
-    @bank.amount_at(Date.new(2008,10,1)).should be == 0
+  it 'should returns nil when amount_at called if account history is empty' do
+    @bank.amount_at(Date.new(2008,10,1)).should be == nil
   end
   it '#balance should error when called with argument to < from' do
     lambda {@bank.balance(Date.new(2008,9,30)..Date.new(2008,8,10))}.should raise_error(ArgumentError)
@@ -145,27 +145,27 @@ describe Endpoint,'with some account histories and some transactions' do
   end
   it 'should returns collect amount at 9-29' do
     date=Date.new(2008,9,29)
-    @bank.amount_at(date).should be == 0
-    @wallet.amount_at(date).should be == 0
-    @food.amount_at(date).should be == 0
+    @bank.amount_at(date).should be == nil
+    @wallet.amount_at(date).should be == nil
+    @food.amount_at(date).should be == nil
   end
   it 'should returns collect amount at 9-30' do
     date=Date.new(2008,9,30)
-    @bank.amount_at(date).should be == 0
-    @wallet.amount_at(date).should be == 0
-    @food.amount_at(date).should be == 0
+    @bank.amount_at(date).should be == nil
+    @wallet.amount_at(date).should be == nil
+    @food.amount_at(date).should be == nil
   end
   it 'should returns collect amount at 10-1' do
     date=Date.new(2008,10,1)
     @bank.amount_at(date).should be == 10000
-    @wallet.amount_at(date).should be == 0
-    @food.amount_at(date).should be == 0
+    @wallet.amount_at(date).should be == nil
+    @food.amount_at(date).should be == nil
   end
   it 'should returns collect amount at 10-2' do
     date=Date.new(2008,10,2)
     @bank.amount_at(date).should be == 10000
     @wallet.amount_at(date).should be == 2000
-    @food.amount_at(date).should be == 0
+    @food.amount_at(date).should be == nil
   end
   it 'should returns collect amount at 10-3' do
     date=Date.new(2008,10,3)

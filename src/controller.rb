@@ -279,6 +279,7 @@ EOS
     define_command(['balance','b'],[
                      [:range,[Date,Range],{:default=>nil}],
                      [:endpoint,Endpoint,{:default=>nil}] ]) do
+      @range=date_parser.min_date..date_parser.max_date if @range.nil?
       tree_ac=DataStructureFormatter::Tree::Accessor.new
       tree_ac.value_accessor{|node| node.name}
       tree_ac.child_enumerator{|node| node.children}
@@ -295,9 +296,9 @@ EOS
 
       table_ac=DataStructureFormatter::Table::Accessor.new 
       table_ac.column_enumerator{|row|
-        [row[1], row[0].balance(@range),row[0].expense(@range),row[0].income(@range)]
+        [row[1], row[0].balance(@range),row[0].expense(@range),row[0].income(@range), row[0].amount_at(@range.first), row[0].amount_at(@range.last)]
       }
-      table_fmt=DataStructureFormatter::Table::Formatter.new(table_ac,['endpoint','balance','expense','income'])
+      table_fmt=DataStructureFormatter::Table::Formatter.new(table_ac,['endpoint','balance','expense','income','amount(first)','amount(last)'])
       ep_name=@endpoint.nil? ? 'all endpoints' : @endpoint.name
       pp @range.nil?
       range_str=@range.nil? ? "" : "#{@range.first.to_s} - #{@range.last.to_s}"

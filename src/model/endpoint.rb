@@ -26,7 +26,7 @@ class Endpoint < ActiveRecord::Base
   end
   def amount_at(at)
     history=newest_account_history(at)
-    return 0 if history.nil?
+    return nil if history.nil?
     return history.amount + balance(history.date..at)
   end
   def descendants
