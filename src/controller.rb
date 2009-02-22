@@ -10,6 +10,7 @@ class Controller
     @parser.type_parser
   end
   attr_accessor :parser
+  attr_reader :date_parser
   def initialize
     @parser=CommandParser.new
     @date_parser=DateParser.new

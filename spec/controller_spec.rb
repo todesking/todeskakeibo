@@ -24,6 +24,7 @@ end
 describe Controller,'#type_parser' do
   before(:all) do
     @c=Controller.new
+    @c.date_parser.base_date=Date.new(2008,1,1)
     ModelSpecHelper.setup_database
     ModelSpecHelper.create_nested_endpoints [
       :stash,
