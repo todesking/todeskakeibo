@@ -15,23 +15,34 @@ class DateParser
     Date.today
   end
 
-  def parse str
-    case str.strip
-    when /^(\d{4})(\d{2})(\d{2})$/
-      Date.new($1.to_i,$2.to_i,$3.to_i)
-    when /^(\d{2})(\d{2})$/
-      Date.new(@base_date.year,$1.to_i,$2.to_i)
-    when /^(\d{1,2})$/
-      Date.new(@base_date.year,@base_date.month,$1.to_i)
-    when /^today$/
-      self.today
-    when /^yesterday$/
-      self.today-1
-    when /^d-(\d+)$/
-      self.today - $1.to_i
-    else
-      raise ArgumentError.new("unknown format date string: #{str}")
+  def parse str,past_date=true
+    abs_date=false
+    fix_month=true
+    result=case str.strip
+           when /^(\d{4})(\d{2})(\d{2})$/
+             abs_date=true
+             Date.new($1.to_i,$2.to_i,$3.to_i)
+           when /^(\d{2})(\d{2})$/
+             Date.new(@base_date.year,$1.to_i,$2.to_i)
+           when /^(\d{1,2})$/
+             fix_month=false
+             Date.new(@base_date.year,@base_date.month,$1.to_i)
+           when /^today$/
+             abs_date=true
+             self.today
+           when /^yesterday$/
+             abs_date=true
+             self.today-1
+           when /^d-(\d+)$/
+             abs_date=true
+             self.today - $1.to_i
+           else
+             raise ArgumentError.new("unknown format date string: #{str}")
+           end
+    if !abs_date && past_date && today < result
+      result=result << (fix_month ? 12 : 1)
     end
+    result
   end
   def month_str_to_i(mname)
     mname=mname.dup
@@ -61,14 +72,14 @@ class DateParser
            when /^-([a-zA-Z]{3})$/
              self.min_date..last_date_of_month(@base_date.year,month_str_to_i($1))
            when /^-(.+)$/
-             self.min_date..parse($1)
+             self.min_date..parse($1,false)
            when /^([a-zA-Z]{3})-$/
              first_date_of_month(@base_date.year,month_str_to_i($1))..self.max_date
            when /^([^-]+)-$/
-             parse($1)..self.max_date
+             parse($1,false)..self.max_date
            when /-/ # date-date
              d_start,d_end=str.split('-')
-             parse(d_start)..parse(d_end)
+             parse(d_start,false)..parse(d_end,false)
            when /^\d{1,2}$/ # mm
              m=str.to_i
              d=Date.new(@base_date.year,m,1)

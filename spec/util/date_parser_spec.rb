@@ -3,6 +3,7 @@ require File.dirname(__FILE__)+'/'+'../../src/util/date_parser.rb'
 describe DateParser do
   before(:each) do
     @rdp=DateParser.new
+    @rdp.base_date=Date.new(2008,10,1)
     def @rdp.today
       Date.new(2008,10,10)
     end
@@ -35,6 +36,12 @@ describe DateParser do
   it 'should error when unknown format' do
     lambda{ @rdp.parse('yesterdayyy') }.should raise_error(ArgumentError)
     lambda{ @rdp.parse('todayyy') }.should raise_error(ArgumentError)
+  end
+  it 'should return 09-23 when input is 23 and today is 10-10' do
+    @rdp.parse('23').should == Date.new(2008,9,23)
+  end
+  it 'should return 10-23 when input is 23 and today is 10-10 and past_date is false' do
+    @rdp.parse('23',false).should == Date.new(2008,10,23)
   end
 end
 
