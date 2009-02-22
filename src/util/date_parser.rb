@@ -79,7 +79,8 @@ class DateParser
            when /^([A-Za-z]{3})$/ # month name
              month=month_str_to_i($1)
              d=Date.new(@base_date.year,month,1)
-             create_shifted_range(d,(d>>1)-1)
+             r=create_shifted_range(d,(d>>1)-1)
+             r
            when /^(\d+)([mwd])$/ # nd: 今日を含むn日 nm: ここnヶ月
              d=self.today
              case $2
@@ -96,6 +97,10 @@ class DateParser
            else
              raise ArgumentError.new("unknown format date range string: #{str}")
            end
+    if today < result.first
+      result=(result.first<<12)..( (result.last==max_date) ? max_date : result.last<<12)
+    end
+    result=(result.first<<12)..(result.last<<12) if today < result.first
     return result
   end
   def create_shifted_range(a,b)
