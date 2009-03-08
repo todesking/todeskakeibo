@@ -218,8 +218,8 @@ describe Controller,'command' do
 
     t=Transaction.find(:first)
     t.dest.name.should == 'super'
-    @c.execute('set transaction 1 dest= super')
-    Transaction.find(:first).dest.name.should =='super'
+    @c.execute('set transaction 1 dest= wallet')
+    Transaction.find(:first).dest.name.should =='wallet'
 
     t=Transaction.find(:first)
     t.amount.should == 500

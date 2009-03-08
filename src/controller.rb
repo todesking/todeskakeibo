@@ -126,7 +126,7 @@ class Controller
       when 'src='
         @target.src=parser.type_parser.parse(@value,Endpoint)
       when 'dest='
-        @target.src=parser.type_parser.parse(@value,Endpoint)
+        @target.dest=parser.type_parser.parse(@value,Endpoint)
       when 'amount='
         @target.amount=parser.type_parser.parse(@value,Numeric)
       when 'date='
